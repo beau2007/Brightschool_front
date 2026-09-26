@@ -1,0 +1,48 @@
+<div class="ecran">
+	<aside class="panneau-marque">
+		<div class="panneau-marque__contenu">
+			<span class="marque">BrightSchool</span>
+			<p class="accroche">
+				Un seul espace pour les enseignants, les directeurs et les familles —
+				du premier jour de petite section au dernier trimestre de CM2.
+			</p>
+		</div>
+		<div class="lignes-cahier" aria-hidden="true"></div>
+	</aside>
+
+	<main class="panneau-formulaire">
+		<form class="formulaire" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+			<h1>Mot de passe oublié</h1>
+			<p class="sous-titre">
+				Saisis ton adresse email pour recevoir un lien de réinitialisation.
+			</p>
+
+			@if (erreur()) {
+				<div class="message-erreur" role="alert">{{ erreur() }}</div>
+			}
+
+			@if (succes()) {
+				<div class="message-succes" role="status">{{ succes() }}</div>
+			}
+
+			<label class="champ">
+				<span>Email</span>
+				<input
+					type="email"
+					formControlName="email"
+					autocomplete="email"
+					placeholder="prenom.nom@ecole.fr"
+				/>
+				@if (form.controls.email.touched && form.controls.email.invalid) {
+					<span class="erreur-champ">Adresse email valide requise.</span>
+				}
+			</label>
+
+			<button type="submit" class="bouton-principal" [disabled]="chargement()">
+				{{ chargement() ? 'Envoi en cours…' : 'Recevoir le lien' }}
+			</button>
+
+			<a class="lien-retour" routerLink="/connexion">Retour à la connexion</a>
+		</form>
+	</main>
+</div>

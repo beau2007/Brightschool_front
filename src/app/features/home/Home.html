@@ -1,0 +1,279 @@
+<app-header />
+
+<main>
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero__texture" aria-hidden="true"></div>
+
+    <div class="hero__contenu">
+      <div class="hero__copy">
+        <div class="badge-pill">
+          <span class="badge-pill__point"></span>
+          <span>Le pilotage scolaire, enfin fluide</span>
+        </div>
+
+        <h1>Une école mieux organisée commence par un seul espace.</h1>
+
+        <p class="hero__texte">
+          BrightSchool rassemble les présences, les évaluations, les bulletins et les échanges avec les familles dans une expérience claire, moderne et partagée.
+        </p>
+
+        <div class="hero__actions">
+          <a routerLink="/inscrire-ecole">
+            <app-button variante="primary">
+              Démarrer gratuitement
+              <svg class="icone-fleche" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </app-button>
+          </a>
+          <a routerLink="/connexion">
+            <app-button variante="outline">Se connecter</app-button>
+          </a>
+        </div>
+
+        <ul class="hero__reassurance">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Essai gratuit 14 jours
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Sans engagement
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Pensé pour le primaire
+          </li>
+        </ul>
+      </div>
+
+      <!-- APERÇU DASHBOARD ELEGANT -->
+      <div class="apercu-conteneur">
+        <div class="apercu" aria-label="Aperçu du tableau de bord BrightSchool">
+          <div class="apercu__barre">
+            <div class="apercu__points">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="apercu__titre">Tableau de bord — Vue d'ensemble</span>
+            <span class="apercu__badge">En direct</span>
+          </div>
+
+          <div class="apercu__corps">
+            <div class="apercu__entete">
+              <div>
+                <span class="apercu__sur-titre">School Name</span>
+                <strong>Bonjour, Name</strong>
+              </div>
+              <span class="apercu__date">Mardi 24 septembre</span>
+            </div>
+
+            <div class="apercu__indicateurs">
+              <div class="indicateur">
+                <div class="indicateur__entete">
+                  <span>Présence globale</span>
+                  <span class="indicateur__tendance positivo">+2,4%</span>
+                </div>
+                <strong>94,8%</strong>
+                <small>18 classes clôturées</small>
+              </div>
+
+              <div class="indicateur">
+                <div class="indicateur__entete">
+                  <span>Évaluations</span>
+                  <span class="indicateur__tendance">Ce trimestre</span>
+                </div>
+                <strong>28</strong>
+                <small>Bulletins à relire</small>
+              </div>
+            </div>
+
+            <div class="apercu__liste">
+              <div class="apercu__ligne apercu__ligne--tete">
+                <span>Classe</span>
+                <span>Effectif</span>
+                <span>État</span>
+              </div>
+              <div class="apercu__ligne">
+                <span class="nom-classe">CE1 - Matisse</span>
+                <span>24 / 25</span>
+                <i class="etat etat--vert">À jour</i>
+              </div>
+              <div class="apercu__ligne">
+                <span class="nom-classe">Grande section</span>
+                <span>18 / 20</span>
+                <i class="etat etat--orange">2 absents</i>
+              </div>
+              <div class="apercu__ligne">
+                <span class="nom-classe">CM2 - Curie</span>
+                <span>26 / 26</span>
+                <i class="etat etat--vert">À jour</i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS / PREUVE SOCIALE -->
+  <section class="preuve">
+    <div class="preuve__grille">
+      <div class="preuve__item">
+        <strong>1</strong>
+        <span>Espace unifié pour toute l'école</span>
+      </div>
+      <div class="preuve__item">
+        <strong>3</strong>
+        <span>Profils réunis (Direction, Enseignants, Parents)</span>
+      </div>
+      <div class="preuve__item">
+        <strong>0</strong>
+        <span>Saisie en double ou fichier égaré</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FONCTIONNALITÉS -->
+  <section id="fonctionnalites" class="fonctionnalites">
+    <div class="section-heading">
+      <span class="eyebrow">Tout au même endroit</span>
+      <h2>Les bons outils pour chaque moment de la journée.</h2>
+      <p>Une base commune, des vues adaptées au rôle et aux besoins de chacun.</p>
+    </div>
+
+    <div class="fonctionnalites__grille">
+      <article class="carte-feature">
+        <span class="carte-feature__numero">01</span>
+        <h3>Présences en quelques secondes</h3>
+        <p>L'enseignant coche sa classe le matin — le directeur voit le taux de présence de l'école en temps réel.</p>
+      </article>
+
+      <article class="carte-feature">
+        <span class="carte-feature__numero">02</span>
+        <h3>Notes et compétences, sans confusion</h3>
+        <p>Notes chiffrées en primaire, paliers d'acquisition en maternelle — chacun selon la pédagogie adaptée.</p>
+      </article>
+
+      <article class="carte-feature">
+        <span class="carte-feature__numero">03</span>
+        <h3>Un compte parent, tous les enfants</h3>
+        <p>Un parent avec plusieurs enfants dans l'école ou dans des classes différentes n'a besoin que d'un seul compte.</p>
+      </article>
+
+      <article class="carte-feature">
+        <span class="carte-feature__numero">04</span>
+        <h3>Rapports générés en un clic</h3>
+        <p>Générez immédiatement les synthèses trimestrielles et bulletins officiels sans aucun tableur manuel.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- TARIFS -->
+  <section id="tarifs" class="tarifs">
+    <div class="section-heading text-center">
+      <span class="eyebrow">Des offres simples</span>
+      <h2>Un tarif qui suit la taille de votre établissement.</h2>
+      <p>Commencez gratuitement, puis évoluez sereinement au rythme de votre école.</p>
+    </div>
+
+    @if (chargementPlans()) {
+      <div class="tarifs__etat">
+        <p>Chargement des offres en cours…</p>
+      </div>
+    } @else if (plans().length === 0) {
+      <div class="tarifs__etat">
+        <p>Les offres ne sont pas disponibles pour le moment.</p>
+      </div>
+    } @else {
+      <div class="tarifs__grille">
+        @for (plan of plans(); track plan.id) {
+          <article class="plan" [class.plan--mis-en-avant]="$first">
+            @if ($first) {
+              <span class="plan__badge">Populaire</span>
+            }
+            <h3>{{ plan.nom }}</h3>
+            <div class="plan__prix">
+              <span class="plan__montant">{{ plan.prixMensuel }}€</span>
+              <span class="plan__periode">/ mois</span>
+            </div>
+
+            <ul class="plan__details">
+              @if (plan.nbEleveMax) {
+                <li>
+                  <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Jusqu'à {{ plan.nbEleveMax }} élèves
+                </li>
+              } @else {
+                <li>
+                  <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Nombre d'élèves illimité
+                </li>
+              }
+
+              @if (plan.nbEnseignantMax) {
+                <li>
+                  <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Jusqu'à {{ plan.nbEnseignantMax }} enseignants
+                </li>
+              } @else {
+                <li>
+                  <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  Enseignants illimités
+                </li>
+              }
+              <li>
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Portail Parent &amp; Application Web
+              </li>
+            </ul>
+
+            <a routerLink="/inscrire-ecole" [queryParams]="{ plan: plan.id }">
+              <app-button [variante]="$first ? 'primary' : 'outline'" [pleineLargeur]="true">
+                Choisir cette offre
+              </app-button>
+            </a>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="faq">
+    <div class="section-heading text-center">
+      <span class="eyebrow">Questions fréquentes</span>
+      <h2>Avez-vous des questions ?</h2>
+    </div>
+
+    <div class="faq__liste">
+      @for (item of listeFaq; track item.question; let i = $index) {
+        <div class="faq__item" (click)="basculerFaq(i)">
+          <div class="faq__question">
+            <h3>{{ item.question }}</h3>
+            <span class="faq__icone" [class.ouvert]="faqOuverte() === i">+</span>
+          </div>
+          @if (faqOuverte() === i) {
+            <div class="faq__reponse">
+              <p>{{ item.reponse }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="pied">
+    <div class="pied__contenu">
+      <div class="pied__colonne">
+        <span class="pied__marque">BrightSchool</span>
+        <p>Une école plus simple à piloter au quotidien.</p>
+      </div>
+      <div class="pied__droite">
+        <span>© {{ anneeCourante }} BrightSchool — Tous droits réservés</span>
+      </div>
+    </div>
+  </footer>
+</main>

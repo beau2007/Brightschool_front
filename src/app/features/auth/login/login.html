@@ -1,0 +1,117 @@
+<div class="ecran">
+  <aside class="panneau-marque">
+    <div class="panneau-marque__haut">
+      <a class="marque" routerLink="/">
+        <span class="marque__icone" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>BrightSchool</span>
+      </a>
+    </div>
+
+    <div class="panneau-marque__contenu">
+      <p class="sur-titre">L'espace de travail de votre école</p>
+      <h2>La gestion scolaire,<br /><strong>simplement.</strong></h2>
+      <p class="accroche">
+        Une plateforme pensée pour le quotidien des établissements, des enseignants et des équipes administratives.
+      </p>
+      <ul class="benefices">
+        <li><span class="benefice__icone">⌁</span>Élèves &amp; enseignants</li>
+        <li><span class="benefice__icone">▣</span>Notes &amp; évaluations</li>
+        <li><span class="benefice__icone">▱</span>Administration &amp; communication</li>
+      </ul>
+    </div>
+
+    <p class="copyright">© {{ anneeCourante }} BrightSchool</p>
+  </aside>
+
+  <main class="panneau-formulaire">
+    <div class="formulaire-zone">
+      <div class="formulaire-introduction">
+        <h1>Content de vous revoir</h1>
+      </div>
+
+      <form class="formulaire" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+        <div class="formulaire__corps">
+          @if (erreur()) {
+            <div class="message-erreur" role="alert">{{ erreur() }}</div>
+          }
+
+          <div class="champ">
+            <label for="email">Adresse e-mail</label>
+            <div class="champ__input-wrapper">
+              <svg class="icone-champ" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="vous@exemple.com"
+              />
+            </div>
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="erreur-champ">Adresse email valide requise.</span>
+            }
+          </div>
+
+          <div class="champ">
+            <label for="motDePasse">Mot de passe</label>
+            <div class="champ__input-wrapper">
+              <svg class="icone-champ" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <input
+                id="motDePasse"
+                [type]="afficherMotDePasse() ? 'text' : 'password'"
+                formControlName="motDePasse"
+                autocomplete="current-password"
+                placeholder="*******"
+              />
+              <button 
+                type="button" 
+                class="bouton-oeil" 
+                (click)="basculerVisibiliteMotDePasse()"
+                [attr.aria-label]="afficherMotDePasse() ? 'Masquer' : 'Afficher'"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+            @if (form.controls.motDePasse.touched && form.controls.motDePasse.invalid) {
+              <span class="erreur-champ">Mot de passe requis.</span>
+            }
+          </div>
+
+          <div class="zone-lien-oublie">
+            <a class="lien-oublie" routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a>
+          </div>
+
+          <app-button type="submit" [pleineLargeur]="true" [disabled]="chargement()">
+            {{ chargement() ? 'Connexion en cours…' : 'Se connecter' }}
+          </app-button>
+
+          <div class="separateur">
+            <span>ou</span>
+          </div>
+
+          <button type="button" class="bouton-google" (click)="connexionGoogle()">
+            <svg class="icone-google" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            <span>Continuer avec Google</span>
+          </button>
+
+        </div>
+      </form>
+
+      <p class="activation">Vous n'avez pas encore activé votre compte ? <a routerLink="/inscription">Activer mon compte</a></p>
+    </div>
+  </main>
+</div>

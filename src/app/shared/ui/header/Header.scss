@@ -1,0 +1,67 @@
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.entete__marque {
+  font-family: var(--font-marque);
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.entete__nav {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.entete__lien {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(27, 42, 47, 0.75);
+  text-decoration: none;
+  padding: 0.375rem 0;
+  border-bottom: 2px solid transparent;
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.entete__lien--actif {
+  color: var(--ink);
+  border-bottom-color: var(--primary);
+}
+
+.entete__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.entete__compte {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.entete__utilisateur {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+@media (max-width: 860px) {
+  .entete__nav:not(.entete__nav--public) {
+    display: none; // TODO : menu mobile (hamburger) — hors scope pour cette passe
+  }
+}

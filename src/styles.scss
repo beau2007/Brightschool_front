@@ -1,0 +1,38 @@
+/* You can add global styles to this file, and also import other style files */
+// Polices : à ajouter dans index.html (voir README-INTEGRATION.md)
+// Source Serif 4 → identité de marque uniquement (logo/titre)
+// Work Sans → tout le reste (formulaires, boutons, texte courant)
+
+:root {
+  --ink: #1b2a2f;
+  --paper: #fbf8f2;
+  --primary: #2f5d50;
+  --primary-dark: #234840;
+  --accent: #e8a33d;
+  --line: #d8cfc0;
+  --danger: #b3452c;
+  --danger-bg: #f7e9e4;
+  --back: #ffff;
+
+  --font-marque: 'Source Serif 4', Georgia, serif;
+  --font-ui: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+button {
+  font-family: inherit;
+}

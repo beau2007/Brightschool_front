@@ -1,0 +1,16 @@
+<button
+  [type]="type"
+  class="btn"
+  [class.btn--primary]="variante === 'primary'"
+  [class.btn--outline]="variante === 'outline'"
+  [class.btn--ghost]="variante === 'ghost'"
+  [class.btn--sm]="taille === 'sm'"
+  [class.btn--full]="pleineLargeur"
+  [disabled]="disabled || chargement"
+  (click)="clicked.emit($event)"
+>
+  @if (chargement) {
+    <span class="btn__spinner" aria-hidden="true"></span>
+  }
+  <ng-content></ng-content>
+</button>
