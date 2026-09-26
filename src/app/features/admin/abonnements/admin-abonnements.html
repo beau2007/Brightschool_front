@@ -1,0 +1,52 @@
+<app-header />
+
+<main class="page">
+  <h1>Abonnements en attente</h1>
+  <p class="sous-titre">Paiements par espèces nécessitant une validation manuelle.</p>
+
+  @if (chargement()) {
+    <p class="etat">Chargement…</p>
+  } @else if (abonnements().length === 0) {
+    <p class="etat">Aucun abonnement en attente.</p>
+  } @else {
+    <table class="tableau">
+      <thead>
+        <tr>
+          <th>École</th>
+          <th>Offre</th>
+          <th>Montant</th>
+          <th>Soumis le</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of abonnements(); track a.paiementId) {
+          <tr>
+            <td>{{ a.ecoleNom }}</td>
+            <td>{{ a.planNom }}</td>
+            <td>{{ a.montant }}€</td>
+            <td>{{ a.dateSoumission | date: 'dd/MM/yyyy' }}</td>
+            <td class="actions">
+              <app-button
+                variante="outline"
+                taille="sm"
+                [chargement]="enTraitementId() === a.paiementId"
+                (clicked)="valider(a.paiementId)"
+              >
+                Valider
+              </app-button>
+              <app-button
+                variante="ghost"
+                taille="sm"
+                [disabled]="enTraitementId() === a.paiementId"
+                (clicked)="rejeter(a.paiementId)"
+              >
+                Rejeter
+              </app-button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>

@@ -8,8 +8,8 @@ export type ButtonTaille = 'md' | 'sm';
   selector: 'app-button',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './Button.html',
-  styleUrl: './Button.scss'
+  templateUrl: './button.html',
+  styleUrl: './button.scss'
 })
 export class Button {
   @Input() variante: ButtonVariante = 'primary';

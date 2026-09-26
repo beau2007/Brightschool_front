@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiErreur } from '../../../core/models/auth.models';
-import { Button } from '../../../shared/ui/button/Button';
+import { Button } from '../../../shared/ui/button/button';
 
 @Component({
   selector: 'app-login',

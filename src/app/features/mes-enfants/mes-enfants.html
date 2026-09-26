@@ -1,0 +1,22 @@
+<app-header />
+
+<main class="page">
+  <h1>Mes enfants</h1>
+  <p class="sous-titre">Tous tes enfants, même inscrits dans des écoles différentes.</p>
+
+  @if (chargement()) {
+    <p class="etat">Chargement…</p>
+  } @else if (enfants().length === 0) {
+    <p class="etat">Aucun enfant rattaché à ton compte pour l'instant.</p>
+  } @else {
+    <div class="grille">
+      @for (enfant of enfants(); track enfant.eleveId) {
+        <div class="carte-enfant">
+          <h2>{{ enfant.prenom }} {{ enfant.nom }}</h2>
+          <p class="ecole">{{ enfant.ecoleNom }}</p>
+          <p class="classe">{{ enfant.classeNom }}</p>
+        </div>
+      }
+    </div>
+  }
+</main>

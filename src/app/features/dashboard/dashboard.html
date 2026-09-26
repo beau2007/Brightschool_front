@@ -1,0 +1,416 @@
+<app-header />
+
+<main class="tableau">
+  <div class="tableau__contenu">
+    <section class="bienvenue" aria-labelledby="titre-tableau">
+      <div class="bienvenue__texte">
+        <span class="bienvenue__sur-titre"><i></i>{{ roleTitre() }}</span>
+        <h1 id="titre-tableau">
+          @if (authService.profil(); as profil) {
+            Bonjour, {{ profil.prenom }}
+          } @else {
+            Votre espace BrightSchool
+          }
+        </h1>
+        <p>Retrouvez en un coup d’œil les informations essentielles de votre espace.</p>
+      </div>
+      <div class="bienvenue__infos">
+        <div class="bienvenue__date">
+          <span class="bienvenue__point"></span>
+          <span>{{ dateDuJour }}</span>
+        </div>
+        <span class="bienvenue__actualisation"><span aria-hidden="true">↻</span> Vue mise à jour aujourd’hui</span>
+      </div>
+    </section>
+
+    @if (!authService.estConnecte()) {
+      <div class="message-connexion">
+        <span class="message-connexion__icone" aria-hidden="true">i</span>
+        <p>Connectez-vous pour afficher les indicateurs correspondant à votre profil.</p>
+        <a routerLink="/connexion">Se connecter <span aria-hidden="true">→</span></a>
+      </div>
+    }
+
+    @if (erreurChargement()) {
+      <div class="alerte" role="alert">
+        Les informations n’ont pas pu être chargées. Vérifiez votre connexion puis réessayez.
+      </div>
+    }
+
+    <section class="section-metrics" aria-label="Indicateurs clés">
+      <div class="section-metrics__entete">
+        <div><span class="panneau__eyebrow">Vue d’ensemble</span><h2>Les chiffres à retenir</h2></div>
+        @if (apercuDonneesFictives) { <span class="badge-demo">Aperçu de démonstration</span> }
+      </div>
+      <div class="indicateurs">
+      @for (indicateur of indicateurs(); track indicateur.label; let index = $index) {
+        <article
+          class="indicateur"
+          [class.indicateur--1]="index === 0"
+          [class.indicateur--2]="index === 1"
+          [class.indicateur--3]="index === 2"
+          [class.indicateur--4]="index === 3"
+          [class.indicateur--5]="index === 4"
+          [class.indicateur--6]="index === 5"
+        >
+          <div class="indicateur__entete">
+            <span>{{ indicateur.label }}</span>
+            <span class="indicateur__icone" aria-hidden="true">
+              @switch (indicateur.icone) {
+                @case ('eleves') { <svg viewBox="0 0 24 24"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20m6-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6-6.8a4 4 0 0 1 0 7.6m4 8.2v-1.5a3.5 3.5 0 0 0-2.7-3.4" /></svg> }
+                @case ('classes') { <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4" /></svg> }
+                @case ('ecoles') { <svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Zm6 11v-6h6v6M8 10h.01M12 10h.01M16 10h.01" /></svg> }
+                @case ('absence') { <svg viewBox="0 0 24 24"><path d="M12 3 2.8 19a1.5 1.5 0 0 0 1.3 2.2h15.8a1.5 1.5 0 0 0 1.3-2.2L12 3Z" /><path d="M12 9v4m0 3h.01" /></svg> }
+                @case ('presence') { <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /><circle cx="12" cy="12" r="10" /></svg> }
+                @case ('retard') { <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg> }
+                @default { <svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" /><path d="M16 6h3v3" /></svg> }
+              }
+            </span>
+          </div>
+          <strong class="indicateur__valeur">{{ chargement() && !apercuDonneesFictives ? '…' : indicateur.valeur }}</strong>
+          <span class="indicateur__detail">{{ chargement() && !apercuDonneesFictives ? 'Mise à jour des données' : indicateur.detail }}</span>
+          <div class="indicateur__bas">
+            <span class="indicateur__tendance" [class.indicateur__tendance--neutre]="indicateur.tendance === '—' || indicateur.tendance.includes('requise')">{{ indicateur.tendance }}</span>
+            @if (apercuDonneesFictives && indicateur.points.length) {
+              <span class="mini-graphique" aria-hidden="true">
+                @for (point of indicateur.points; track $index) {
+                  <i [style.height.%]="point"></i>
+                }
+              </span>
+            }
+          </div>
+          @if (indicateur.demo) { <span class="indicateur__demo">Démo</span> }
+        </article>
+      }
+      </div>
+    </section>
+
+    <section class="analytique" aria-label="Analyse des présences et performances">
+        <article class="panneau graphique-absences">
+          <div class="panneau__entete graphique-absences__entete">
+            <div>
+              <span class="panneau__eyebrow">Assiduité</span>
+              <h2>Suivi des absences</h2>
+              <p class="graphique-absences__description">
+                @if (periodeAbsences() === 'mois') {
+                  Absences enregistrées chaque jour durant le mois sélectionné
+                } @else {
+                  Répartition des absences par classe à la date sélectionnée
+                }
+              </p>
+            </div>
+            <div class="graphique-absences__filtres">
+              @if (absencesEnDemo()) {
+                <span class="badge-demo">Données fictives</span>
+              }
+              <label class="champ-graphique">
+                <span>Vue</span>
+                <select [value]="periodeAbsences()" (change)="changerPeriodeAbsences($event)">
+                  <option value="mois">Par mois</option>
+                  <option value="jour">Par jour</option>
+                </select>
+              </label>
+              @if (periodeAbsences() === 'mois') {
+                <label class="champ-graphique">
+                  <span>Mois</span>
+                  <input type="month" [value]="moisAbsences()" (change)="changerMoisAbsences($event)" />
+                </label>
+              } @else {
+                <label class="champ-graphique">
+                  <span>Date</span>
+                  <input type="date" [value]="dateAbsences()" (change)="changerDateAbsences($event)" />
+                </label>
+              }
+            </div>
+          </div>
+
+          @if (chargementAbsences() && !absencesEnDemo()) {
+            <div class="graphique-etat"><span class="chargeur"></span><span>Analyse des présences en cours…</span></div>
+          } @else if (erreurAbsences() && !aDesDonneesAbsences()) {
+            <div class="graphique-etat graphique-etat--erreur">
+              Les données de présence n’ont pas pu être chargées. Vérifiez votre session puis réessayez.
+            </div>
+          } @else if (!aDesDonneesAbsences()) {
+            <div class="graphique-etat">
+              <span class="graphique-etat__symbole">—</span>
+              <strong>Graphique prêt à afficher les données</strong>
+              <span>Les courbes apparaîtront ici dès que les présences seront disponibles.</span>
+            </div>
+            @if (periodeAbsences() === 'mois') {
+              <div class="graphique-absences__zone graphique-absences__zone--vide" aria-hidden="true">
+                <svg class="graphique-absences__svg" viewBox="0 0 760 250">
+                  @for (ligne of [0, 1, 2, 3]; track ligne) {
+                    <line [attr.x1]="38" [attr.x2]="746" [attr.y1]="16 + ligne * 68" [attr.y2]="16 + ligne * 68" class="graphique-absences__grille" />
+                  }
+                  <text x="390" y="125" text-anchor="middle" class="graphique-absences__axe">En attente des données</text>
+                  <text x="38" y="244" class="graphique-absences__axe">01</text>
+                  <text x="390" y="244" text-anchor="middle" class="graphique-absences__axe">15</text>
+                  <text x="746" y="244" text-anchor="end" class="graphique-absences__axe">31</text>
+                </svg>
+                <div class="graphique-absences__axe-y"><span>—</span><span>—</span><span>0</span></div>
+              </div>
+            } @else {
+              <div class="graphique-jour graphique-jour--vide" aria-hidden="true">
+                @for (ligne of [1, 2, 3]; track ligne) {
+                  <div class="graphique-jour__ligne">
+                    <span class="graphique-jour__classe">&nbsp;</span>
+                    <span class="graphique-jour__piste"><i></i></span>
+                    <strong>—</strong>
+                  </div>
+                }
+              </div>
+            }
+          } @else if (periodeAbsences() === 'mois') {
+            <div class="graphique-absences__resume">
+              <div><strong>{{ totalAbsences() }}</strong><span>absences</span></div>
+              <div><strong>{{ totalRetards() }}</strong><span>retards</span></div>
+              <div><strong>{{ journeesRenseignees() }}</strong><span>jours renseignés</span></div>
+              <span class="graphique-absences__legende"><i></i> Absences</span>
+            </div>
+            <div class="graphique-absences__zone">
+              <svg class="graphique-absences__svg" viewBox="0 0 760 250" role="img" aria-label="Évolution des absences par jour">
+                <defs>
+                  <linearGradient id="teinte-absences" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#2f5d50" stop-opacity=".2" />
+                    <stop offset="100%" stop-color="#2f5d50" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                @for (ligne of [0, 1, 2, 3]; track ligne) {
+                  <line [attr.x1]="38" [attr.x2]="746" [attr.y1]="16 + ligne * 68" [attr.y2]="16 + ligne * 68" class="graphique-absences__grille" />
+                }
+                <path [attr.d]="zoneAbsences()" class="graphique-absences__aire" />
+                <path [attr.d]="cheminAbsences()" class="graphique-absences__ligne" />
+                @for (point of coordonneesAbsences(); track $index) {
+                  @if (point.value !== null) {
+                    <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3.5" class="graphique-absences__point">
+                      <title>{{ point.label }} : {{ point.value }} absence{{ point.value > 1 ? 's' : '' }}</title>
+                    </circle>
+                  }
+                }
+                @for (repere of repereAbsences(); track $index) {
+                  <text [attr.x]="repere.x" y="244" text-anchor="middle" class="graphique-absences__axe">{{ repere.label }}</text>
+                }
+              </svg>
+              <div class="graphique-absences__axe-y">
+                <span>{{ maximumAbsences() }}</span>
+                <span>{{ (maximumAbsences() / 2) | number: '1.0-0' }}</span>
+                <span>0</span>
+              </div>
+            </div>
+            @if (absencesEnDemo()) {
+              <p class="graphique-absences__avertissement">Aperçu de démonstration : ces données sont fictives et ne proviennent pas de votre établissement.</p>
+            } @else if (erreurAbsences()) {
+              <p class="graphique-absences__avertissement">Certaines classes n’ont pas pu être chargées ; les chiffres affichés sont partiels.</p>
+            }
+          } @else {
+            <div class="graphique-jour">
+              @for (point of pointsAbsences(); track point.label) {
+                <div class="graphique-jour__ligne">
+                  <span class="graphique-jour__classe">{{ point.label }}</span>
+                  @if (point.value === null) {
+                    <span class="graphique-jour__non-renseigne">Non renseigné</span>
+                  } @else {
+                    <span class="graphique-jour__piste"><i [style.width.%]="maximumAbsences() ? (point.value / maximumAbsences()) * 100 : 0"></i></span>
+                    <strong>{{ point.value }}</strong>
+                  }
+                </div>
+              }
+            </div>
+            @if (absencesEnDemo()) {
+              <p class="graphique-absences__avertissement">Aperçu de démonstration : ces données sont fictives et ne proviennent pas de votre établissement.</p>
+            } @else if (erreurAbsences()) {
+              <p class="graphique-absences__avertissement">Certaines classes n’ont pas pu être chargées ; les chiffres affichés sont partiels.</p>
+            }
+          }
+        </article>
+
+        <article class="panneau apercu-indicateurs">
+          <div class="panneau__entete">
+            <div>
+              <span class="panneau__eyebrow">Performance scolaire</span>
+              <h2>Taux de réussite</h2>
+            </div>
+            @if (apercuDonneesFictives) { <span class="badge-demo">Démo</span> }
+          </div>
+          @if (apercuDonneesFictives) {
+            <div class="reussite-vue">
+              <div class="reussite-anneau" [style.--taux]="tauxReussiteDemo + '%'">
+                <div><strong>{{ tauxReussiteDemo }}%</strong><span>de réussite</span></div>
+              </div>
+              <span class="reussite-variation">{{ variationReussiteDemo }}</span>
+            </div>
+            <p class="indicateurs-note">Valeur d’exemple uniquement. Les résultats réels nécessitent une API de statistiques.</p>
+          } @else {
+            <div class="graphique-etat graphique-etat--compact">
+              <span class="graphique-etat__symbole">%</span>
+              <strong>Indicateur non disponible</strong>
+              <span>Une API de statistiques de résultats est nécessaire.</span>
+            </div>
+          }
+        </article>
+        <article class="panneau effectifs-panel">
+          <div class="panneau__entete effectifs-panel__entete">
+            <div class="effectifs-panel__titre">
+              <span class="panneau__eyebrow"><i></i> Démographie scolaire</span>
+              <h2>Évolution des effectifs</h2>
+              <p class="graphique-absences__description">Une progression régulière de la communauté scolaire</p>
+            </div>
+            @if (apercuDonneesFictives) {
+              <div class="effectifs-kpi">
+                <span class="effectifs-kpi__icone" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M3 20h18M5 17l5-5 4 3 6-8"/><path d="M15 7h5v5"/></svg>
+                </span>
+                <span class="effectifs-kpi__texte"><strong>368</strong><small>élèves actuellement</small><em>+120 en 4 ans</em></span>
+              </div>
+            } @else {
+              <span class="indicateur-attente__badge">Historique API requis</span>
+            }
+          </div>
+          @if (apercuDonneesFictives) {
+            <div class="effectifs-graphique" role="img" aria-label="Effectifs fictifs : 248 élèves en 2022, 276 en 2023, 309 en 2024, 337 en 2025, 368 en 2026">
+              <div class="effectifs-graphique__valeurs" aria-hidden="true"><span>400</span><span>300</span><span>200</span></div>
+              <svg class="effectifs-graphique__svg" viewBox="0 0 760 280" aria-hidden="true">
+                <defs>
+                  <linearGradient id="teinte-effectifs" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#2f5d50" stop-opacity=".22" />
+                    <stop offset="65%" stop-color="#6d9a7d" stop-opacity=".09" />
+                    <stop offset="100%" stop-color="#fbf8f2" stop-opacity="0" />
+                  </linearGradient>
+                  <filter id="ombre-point-effectifs" x="-100%" y="-100%" width="300%" height="300%">
+                    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#2f5d50" flood-opacity=".22" />
+                  </filter>
+                </defs>
+                @for (ligne of [32, 132, 232]; track ligne) {
+                  <line x1="42" x2="746" [attr.y1]="ligne" [attr.y2]="ligne" class="effectifs-graphique__grille" />
+                }
+                <path d="M42 232 L42 184 C105 180 159 160 218 156 S333 128 394 123 S510 99 570 95 S685 65 746 64 L746 232 Z" class="effectifs-graphique__aire" />
+                <path d="M42 184 C105 180 159 160 218 156 S333 128 394 123 S510 99 570 95 S685 65 746 64" class="effectifs-graphique__ligne" />
+                @for (point of donneesEvolutionDemo; track point.annee; let index = $index) {
+                  <line [attr.x1]="42 + index * 176" [attr.x2]="42 + index * 176" [attr.y1]="232" [attr.y2]="232 - (point.effectif - 200)" class="effectifs-graphique__guide" />
+                  <circle [attr.cx]="42 + index * 176" [attr.cy]="232 - (point.effectif - 200)" r="10" class="effectifs-graphique__halo" />
+                  <circle [attr.cx]="42 + index * 176" [attr.cy]="232 - (point.effectif - 200)" r="5" class="effectifs-graphique__point" filter="url(#ombre-point-effectifs)" />
+                  <text [attr.x]="42 + index * 176" [attr.y]="212 - (point.effectif - 200)" [attr.text-anchor]="index === 4 ? 'end' : 'middle'" class="effectifs-graphique__etiquette">{{ point.effectif }}</text>
+                  <text [attr.x]="42 + index * 176" y="262" [attr.text-anchor]="index === 0 ? 'start' : index === 4 ? 'end' : 'middle'" class="effectifs-graphique__annee">{{ point.annee }}</text>
+                }
+              </svg>
+            </div>
+            <div class="effectifs-resume">
+              @for (point of donneesEvolutionDemo; track point.annee; let index = $index) {
+                <div class="effectifs-resume__annee" [class.effectifs-resume__annee--actuelle]="$last">
+                  <span class="effectifs-resume__repere">{{ index === 0 ? 'Départ' : $last ? 'Aujourd’hui' : 'Année ' + (index + 1) }}</span>
+                  <strong>{{ point.effectif }}</strong>
+                  <small>{{ point.annee }}</small>
+                </div>
+              }
+            </div>
+            <p class="effectifs-panel__note"><span aria-hidden="true">✦</span> Aperçu fictif pour illustrer l’évolution. L’historique réel nécessite une API dédiée.</p>
+          } @else {
+            <div class="graphique-etat graphique-etat--compact">
+              <strong>Historique non disponible</strong>
+              <span>Une API d’effectifs par année scolaire est nécessaire pour afficher cette courbe.</span>
+            </div>
+          }
+        </article>
+    </section>
+
+    <section class="contenu-grille" aria-label="Détails de votre espace">
+      <article class="panneau repartition">
+        <div class="panneau__entete">
+          <div>
+            <span class="panneau__eyebrow">Vue détaillée</span>
+            <h2>
+              @if (estParent()) { Suivi de mes enfants }
+              @else if (estAdmin()) { Demandes d’abonnement }
+              @else { Répartition des effectifs }
+            </h2>
+          </div>
+          @if (!estParent() && !estAdmin() && classes().length > 0) {
+            <span class="panneau__compteur">{{ classes().length }} classe{{ classes().length > 1 ? 's' : '' }}</span>
+          }
+          @if (estAdmin()) {
+            <a class="lien-panneau" routerLink="/admin/abonnements">Tout voir <span aria-hidden="true">→</span></a>
+          }
+        </div>
+
+        @if (chargement()) {
+          <div class="etat-vide"><span class="chargeur"></span><span>Chargement de vos données…</span></div>
+        } @else if (estAdmin()) {
+          @if (abonnementsEnAttente().length) {
+            <div class="liste-lignes">
+              @for (abonnement of abonnementsEnAttente().slice(0, maximumListe()); track abonnement.paiementId) {
+                <div class="ligne-demande">
+                  <span class="ligne-demande__initiale">{{ abonnement.ecoleNom.charAt(0) }}</span>
+                  <div class="ligne-demande__texte">
+                    <strong>{{ abonnement.ecoleNom }}</strong>
+                    <span>{{ abonnement.planNom }} · {{ abonnement.dateSoumission | date: 'd MMM y' }}</span>
+                  </div>
+                  <strong class="ligne-demande__montant">{{ abonnement.montant | number: '1.0-0' }} €</strong>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="etat-vide"><span class="etat-vide__icone">✓</span><span>Aucune demande en attente. Tout est à jour.</span></div>
+          }
+        } @else if (elementsRepartition().length) {
+          <div class="barres-liste">
+            @for (element of elementsRepartition().slice(0, maximumListe()); track element.nom) {
+              <div class="barre-ligne">
+                <div class="barre-ligne__infos">
+                  <strong>{{ element.nom }}</strong>
+                  <span>{{ element.detail }}</span>
+                </div>
+                @if (estParent()) {
+                  <span class="barre-ligne__statut">Suivi actif</span>
+                } @else {
+                  <div class="barre-ligne__piste" role="img" [attr.aria-label]="element.valeur + ' % des effectifs'">
+                    <span [style.width.%]="element.valeur"></span>
+                  </div>
+                  <span class="barre-ligne__valeur">{{ element.effectif }} élève{{ element.effectif > 1 ? 's' : '' }}</span>
+                }
+              </div>
+            }
+          </div>
+          @if (elementsRepartition().length > maximumListe()) {
+            <a class="lien-panneau repartition__lien" [routerLink]="estParent() ? '/mes-enfants' : '/classes'">
+              Voir toute la liste <span aria-hidden="true">→</span>
+            </a>
+          }
+        } @else {
+          <div class="etat-vide"><span class="etat-vide__icone">⌂</span><span>Aucune donnée à afficher pour le moment.</span></div>
+        }
+      </article>
+
+      <aside class="panneau acces-rapides">
+        <div class="panneau__entete">
+          <div>
+            <span class="panneau__eyebrow">Raccourcis</span>
+            <h2>Accès rapides</h2>
+          </div>
+        </div>
+        <div class="acces-rapides__liste">
+          @for (item of acces(); track item.route) {
+            <a [routerLink]="item.route" class="acces-carte">
+              <span class="acces-carte__icone" aria-hidden="true">
+                @if (item.icone === 'classes') { <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4" /></svg> }
+                @else if (item.icone === 'plans') { <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8m-8 4h5" /></svg> }
+                @else { <svg viewBox="0 0 24 24"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20m6-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" /></svg> }
+              </span>
+              <span class="acces-carte__texte"><strong>{{ item.label }}</strong><small>{{ item.description }}</small></span>
+              <span class="acces-carte__fleche" aria-hidden="true">↗</span>
+            </a>
+          }
+        </div>
+        <div class="aide-carte">
+          <span class="aide-carte__ornement" aria-hidden="true">✳</span>
+          <span class="panneau__eyebrow">BrightSchool</span>
+          <p>Une vue claire pour vous aider à piloter votre quotidien scolaire.</p>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="pied-tableau">
+      <span>BrightSchool <span aria-hidden="true">·</span> Votre école, en un seul espace</span>
+      <span>Données actualisées à l’ouverture de la page</span>
+    </footer>
+  </div>
+</main>

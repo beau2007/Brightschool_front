@@ -1,25 +1,24 @@
 <header class="entete">
   <a routerLink="/" class="entete__marque">BrightSchool</a>
 
-  @if (authService.estConnecte()) {
-    <nav class="entete__nav">
-      @for (lien of liensNav(); track lien.route) {
-        <a [routerLink]="lien.route" routerLinkActive="entete__lien--actif" class="entete__lien">
-          {{ lien.label }}
-        </a>
-      }
-    </nav>
+  <nav class="entete__nav" [class.entete__nav--public]="!authService.estConnecte()">
+    @for (lien of liensNav(); track lien.route) {
+      <a [routerLink]="lien.route" routerLinkActive="entete__lien--actif" class="entete__lien">
+        {{ lien.label }}
+      </a>
+    }
+    @if (!authService.estConnecte()) {
+      <a href="#fonctionnalites" class="entete__lien">Fonctionnalités</a>
+      <a href="#tarifs" class="entete__lien">Tarifs</a>
+    }
+  </nav>
 
+  @if (authService.estConnecte()) {
     <div class="entete__compte">
       <span class="entete__utilisateur">{{ authService.profil()?.prenom }}</span>
       <app-button variante="ghost" taille="sm" (clicked)="seDeconnecter()">Déconnexion</app-button>
     </div>
   } @else {
-    <nav class="entete__nav entete__nav--public">
-      <a href="#fonctionnalites" class="entete__lien">Fonctionnalités</a>
-      <a href="#tarifs" class="entete__lien">Tarifs</a>
-    </nav>
-
     <div class="entete__actions">
       <a routerLink="/connexion"><app-button variante="ghost" taille="sm">Connexion</app-button></a>
       <a routerLink="/inscrire-ecole"><app-button variante="primary" taille="sm">Essayer gratuitement</app-button></a>

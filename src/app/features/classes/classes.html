@@ -1,0 +1,76 @@
+<app-header />
+
+<main class="page">
+  <div class="entete-page">
+    <div>
+      <h1>Classes</h1>
+      <p class="sous-titre">{{ classes().length }} classe(s) pour l'année en cours.</p>
+    </div>
+
+    @if (authService.aLeRole('Directeur') && !formulaireOuvert()) {
+      <app-button (clicked)="ouvrirFormulaire()">Nouvelle classe</app-button>
+    }
+  </div>
+
+  @if (formulaireOuvert()) {
+    <form class="formulaire-inline" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+      @if (erreur()) {
+        <div class="message-erreur" role="alert">{{ erreur() }}</div>
+      }
+
+      <div class="champ-ligne">
+        <label class="champ">
+          <span>Nom de la classe</span>
+          <input type="text" formControlName="nom" placeholder="CE2-A" />
+        </label>
+
+        <label class="champ">
+          <span>Niveau</span>
+          <select formControlName="niveauId">
+            <option [ngValue]="null" disabled>Choisir…</option>
+            @for (niveau of niveaux(); track niveau.id) {
+              <option [ngValue]="niveau.id">{{ niveau.nom }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="champ champ--etroit">
+          <span>Effectif max</span>
+          <input type="number" formControlName="effectifMax" min="1" />
+        </label>
+      </div>
+
+      <div class="actions-formulaire">
+        <app-button variante="ghost" type="button" (clicked)="annuler()">Annuler</app-button>
+        <app-button type="submit" [chargement]="enregistrement()">Créer la classe</app-button>
+      </div>
+    </form>
+  }
+
+  @if (chargement()) {
+    <p class="etat">Chargement…</p>
+  } @else if (classes().length === 0) {
+    <p class="etat">Aucune classe pour le moment.</p>
+  } @else {
+    <table class="tableau">
+      <thead>
+        <tr>
+          <th>Classe</th>
+          <th>Niveau</th>
+          <th>Enseignant</th>
+          <th>Effectif</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (classe of classes(); track classe.id) {
+          <tr>
+            <td>{{ classe.nom }}</td>
+            <td>{{ classe.niveau }}</td>
+            <td>{{ classe.enseignantPrincipalNomComplet ?? '—' }}</td>
+            <td>{{ classe.effectifActuel }}{{ classe.effectifMax ? ' / ' + classe.effectifMax : '' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>

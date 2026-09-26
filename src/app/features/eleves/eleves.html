@@ -1,0 +1,93 @@
+<app-header />
+
+<main class="page">
+  <div class="entete-page">
+    <div>
+      <h1>Élèves</h1>
+      <p class="sous-titre">{{ eleves().length }} élève(s) dans cette classe.</p>
+    </div>
+
+    @if (authService.aLeRole('Directeur') && !formulaireOuvert() && classeSelectionneeId()) {
+      <app-button (clicked)="ouvrirFormulaire()">Nouvel élève</app-button>
+    }
+  </div>
+
+  <label class="champ champ--select">
+    <span>Classe</span>
+    <select (change)="onChangerClasse($event)">
+      @for (classe of classes(); track classe.id) {
+        <option [value]="classe.id" [selected]="classe.id === classeSelectionneeId()">
+          {{ classe.nom }}
+        </option>
+      }
+    </select>
+  </label>
+
+  @if (formulaireOuvert()) {
+    <form class="formulaire-inline" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
+      @if (erreur()) {
+        <div class="message-erreur" role="alert">{{ erreur() }}</div>
+      }
+
+      <div class="champ-ligne">
+        <label class="champ">
+          <span>Prénom</span>
+          <input type="text" formControlName="prenom" />
+        </label>
+        <label class="champ">
+          <span>Nom</span>
+          <input type="text" formControlName="nom" />
+        </label>
+        <label class="champ champ--etroit">
+          <span>Naissance</span>
+          <input type="date" formControlName="dateNaissance" />
+        </label>
+        <label class="champ champ--etroit">
+          <span>Sexe</span>
+          <select formControlName="sexe">
+            <option value="">—</option>
+            <option value="F">F</option>
+            <option value="M">M</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="champ">
+        <span>Informations médicales (allergies, PAI…)</span>
+        <textarea formControlName="informationsMedicales" rows="2"></textarea>
+      </label>
+
+      <div class="actions-formulaire">
+        <app-button variante="ghost" type="button" (clicked)="annuler()">Annuler</app-button>
+        <app-button type="submit" [chargement]="enregistrement()">Ajouter l'élève</app-button>
+      </div>
+    </form>
+  }
+
+  @if (chargementEleves()) {
+    <p class="etat">Chargement…</p>
+  } @else if (eleves().length === 0) {
+    <p class="etat">Aucun élève dans cette classe.</p>
+  } @else {
+    <table class="tableau">
+      <thead>
+        <tr>
+          <th>Matricule</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Naissance</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (eleve of eleves(); track eleve.id) {
+          <tr>
+            <td>{{ eleve.matricule }}</td>
+            <td>{{ eleve.nom }}</td>
+            <td>{{ eleve.prenom }}</td>
+            <td>{{ eleve.dateNaissance | date: 'dd/MM/yyyy' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</main>
