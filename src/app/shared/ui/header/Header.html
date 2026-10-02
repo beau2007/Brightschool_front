@@ -1,25 +1,84 @@
 <header class="entete">
-  <a routerLink="/" class="entete__marque">BrightSchool</a>
+  @if (!authService.estConnecte()) {
+    <a routerLink="/" class="entete__marque">BrightSchool</a>
+  } @else {
+    <div class="entete__ecole" [title]="nomEtablissement()">
+      <span class="entete__ecole-icone" aria-hidden="true">⌂</span>
+      <span class="entete__ecole-texte"><small>Établissement</small><strong>{{ nomEtablissement() }}</strong></span>
+    </div>
+  }
 
-  <nav class="entete__nav" [class.entete__nav--public]="!authService.estConnecte()">
+  <button
+    type="button"
+    class="entete__menu-mobile"
+    [attr.aria-expanded]="menuMobileOuvert()"
+    aria-controls="navigation-principale"
+    [attr.aria-label]="menuMobileOuvert() ? 'Fermer le menu de navigation' : 'Ouvrir le menu de navigation'"
+    (click)="basculerMenuMobile()">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav id="navigation-principale" class="entete__nav" [class.entete__nav--public]="!authService.estConnecte()" [class.entete__nav--ouverte]="menuMobileOuvert()">
     @for (lien of liensNav(); track lien.route) {
-      <a [routerLink]="lien.route" routerLinkActive="entete__lien--actif" class="entete__lien">
+      <a [routerLink]="lien.route" routerLinkActive="entete__lien--actif" class="entete__lien" (click)="fermerMenuMobile()">
         {{ lien.label }}
       </a>
     }
     @if (!authService.estConnecte()) {
-      <a href="#fonctionnalites" class="entete__lien">Fonctionnalités</a>
-      <a href="#tarifs" class="entete__lien">Tarifs</a>
+      <a href="#home" class="entete__lien" (click)="fermerMenuMobile()">Home</a>
+      <a href="#fonctionnalites" class="entete__lien" (click)="fermerMenuMobile()">Fonctionnalités</a>
+      <a href="#tarifs" class="entete__lien" (click)="fermerMenuMobile()">Tarifs</a>
+      <div class="entete__actions-mobile">
+        <a routerLink="/connexion" (click)="fermerMenuMobile()"><app-button variante="ghost" taille="sm">Connexion</app-button></a>
+        <a routerLink="/inscrire-ecole" (click)="fermerMenuMobile()"><app-button variante="primary" taille="sm">Essayer gratuitement</app-button></a>
+      </div>
+    } @else {
+      <section class="entete__compte-mobile" aria-label="Informations de l’utilisateur connecté">
+        <div class="entete__compte-mobile-identite">
+          <span class="entete__avatar entete__avatar--grand" aria-hidden="true">{{ initialesUtilisateur() }}</span>
+          <div><strong>{{ authService.profil()?.prenom }} {{ authService.profil()?.nom }}</strong><span>{{ roleUtilisateur() }}</span></div>
+        </div>
+        <div class="entete__compte-mobile-detail"><span>Adresse e-mail</span><strong>{{ authService.profil()?.email }}</strong></div>
+        <div class="entete__compte-mobile-detail"><span>Établissement</span><strong>{{ nomEtablissement() }}</strong></div>
+        <button type="button" class="entete__deconnexion" (click)="deconnecterDepuisMenuMobile()">
+          <span aria-hidden="true">↪</span> Se déconnecter
+        </button>
+      </section>
     }
   </nav>
 
   @if (authService.estConnecte()) {
     <div class="entete__compte">
-      <span class="entete__utilisateur">{{ authService.profil()?.prenom }}</span>
-      <app-button variante="ghost" taille="sm" (clicked)="seDeconnecter()">Déconnexion</app-button>
+      <button
+        type="button"
+        class="entete__profil"
+        [attr.aria-expanded]="menuCompteOuvert()"
+        aria-haspopup="true"
+        (click)="basculerMenuCompte()">
+        <span class="entete__avatar" aria-hidden="true">{{ initialesUtilisateur() }}</span>
+        <span class="entete__profil-texte">
+          <strong>{{ authService.profil()?.prenom }} {{ authService.profil()?.nom }}</strong>
+          <small>{{ roleUtilisateur() }}</small>
+        </span>
+        <span class="entete__chevron" aria-hidden="true">⌄</span>
+      </button>
+
+      @if (menuCompteOuvert()) {
+        <section class="entete__menu-compte" aria-label="Informations du compte">
+          <div class="entete__menu-identite">
+            <span class="entete__avatar entete__avatar--grand" aria-hidden="true">{{ initialesUtilisateur() }}</span>
+            <div><strong>{{ authService.profil()?.prenom }} {{ authService.profil()?.nom }}</strong><span>{{ roleUtilisateur() }}</span></div>
+          </div>
+          <div class="entete__detail-compte"><span>Adresse e-mail</span><strong>{{ authService.profil()?.email }}</strong></div>
+          <div class="entete__detail-compte"><span>Établissement</span><strong>{{ nomEtablissement() }}</strong></div>
+          <button type="button" class="entete__deconnexion" (click)="seDeconnecter()">
+            <span aria-hidden="true">↪</span> Se déconnecter
+          </button>
+        </section>
+      }
     </div>
   } @else {
-    <div class="entete__actions">
+    <div class="entete__actions entete__actions--desktop">
       <a routerLink="/connexion"><app-button variante="ghost" taille="sm">Connexion</app-button></a>
       <a routerLink="/inscrire-ecole"><app-button variante="primary" taille="sm">Essayer gratuitement</app-button></a>
     </div>

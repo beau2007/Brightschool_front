@@ -1,5 +1,5 @@
 export interface Niveau {
-  id: number;
+  id: string;
   nom: string;
   ordre: number;
   cycle: string;

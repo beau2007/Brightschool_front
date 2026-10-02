@@ -40,7 +40,6 @@
     <section class="section-metrics" aria-label="Indicateurs clés">
       <div class="section-metrics__entete">
         <div><span class="panneau__eyebrow">Vue d’ensemble</span><h2>Les chiffres à retenir</h2></div>
-        @if (apercuDonneesFictives) { <span class="badge-demo">Aperçu de démonstration</span> }
       </div>
       <div class="indicateurs">
       @for (indicateur of indicateurs(); track indicateur.label; let index = $index) {
@@ -67,19 +66,11 @@
               }
             </span>
           </div>
-          <strong class="indicateur__valeur">{{ chargement() && !apercuDonneesFictives ? '…' : indicateur.valeur }}</strong>
-          <span class="indicateur__detail">{{ chargement() && !apercuDonneesFictives ? 'Mise à jour des données' : indicateur.detail }}</span>
+          <strong class="indicateur__valeur">{{ chargement() ? '…' : indicateur.valeur }}</strong>
+          <span class="indicateur__detail">{{ chargement() ? 'Mise à jour des données' : indicateur.detail }}</span>
           <div class="indicateur__bas">
             <span class="indicateur__tendance" [class.indicateur__tendance--neutre]="indicateur.tendance === '—' || indicateur.tendance.includes('requise')">{{ indicateur.tendance }}</span>
-            @if (apercuDonneesFictives && indicateur.points.length) {
-              <span class="mini-graphique" aria-hidden="true">
-                @for (point of indicateur.points; track $index) {
-                  <i [style.height.%]="point"></i>
-                }
-              </span>
-            }
           </div>
-          @if (indicateur.demo) { <span class="indicateur__demo">Démo</span> }
         </article>
       }
       </div>
@@ -100,9 +91,6 @@
               </p>
             </div>
             <div class="graphique-absences__filtres">
-              @if (absencesEnDemo()) {
-                <span class="badge-demo">Données fictives</span>
-              }
               <label class="champ-graphique">
                 <span>Vue</span>
                 <select [value]="periodeAbsences()" (change)="changerPeriodeAbsences($event)">
@@ -124,7 +112,7 @@
             </div>
           </div>
 
-          @if (chargementAbsences() && !absencesEnDemo()) {
+          @if (chargementAbsences()) {
             <div class="graphique-etat"><span class="chargeur"></span><span>Analyse des présences en cours…</span></div>
           } @else if (erreurAbsences() && !aDesDonneesAbsences()) {
             <div class="graphique-etat graphique-etat--erreur">
@@ -197,9 +185,7 @@
                 <span>0</span>
               </div>
             </div>
-            @if (absencesEnDemo()) {
-              <p class="graphique-absences__avertissement">Aperçu de démonstration : ces données sont fictives et ne proviennent pas de votre établissement.</p>
-            } @else if (erreurAbsences()) {
+            @if (erreurAbsences()) {
               <p class="graphique-absences__avertissement">Certaines classes n’ont pas pu être chargées ; les chiffres affichés sont partiels.</p>
             }
           } @else {
@@ -216,9 +202,7 @@
                 </div>
               }
             </div>
-            @if (absencesEnDemo()) {
-              <p class="graphique-absences__avertissement">Aperçu de démonstration : ces données sont fictives et ne proviennent pas de votre établissement.</p>
-            } @else if (erreurAbsences()) {
+            @if (erreurAbsences()) {
               <p class="graphique-absences__avertissement">Certaines classes n’ont pas pu être chargées ; les chiffres affichés sont partiels.</p>
             }
           }
@@ -230,86 +214,39 @@
               <span class="panneau__eyebrow">Performance scolaire</span>
               <h2>Taux de réussite</h2>
             </div>
-            @if (apercuDonneesFictives) { <span class="badge-demo">Démo</span> }
           </div>
-          @if (apercuDonneesFictives) {
-            <div class="reussite-vue">
-              <div class="reussite-anneau" [style.--taux]="tauxReussiteDemo + '%'">
-                <div><strong>{{ tauxReussiteDemo }}%</strong><span>de réussite</span></div>
-              </div>
-              <span class="reussite-variation">{{ variationReussiteDemo }}</span>
-            </div>
-            <p class="indicateurs-note">Valeur d’exemple uniquement. Les résultats réels nécessitent une API de statistiques.</p>
-          } @else {
-            <div class="graphique-etat graphique-etat--compact">
-              <span class="graphique-etat__symbole">%</span>
-              <strong>Indicateur non disponible</strong>
-              <span>Une API de statistiques de résultats est nécessaire.</span>
-            </div>
-          }
+          <div class="graphique-etat graphique-etat--compact">
+            <span class="graphique-etat__symbole">%</span>
+            <strong>Indicateur non disponible</strong>
+            <span>Aucune statistique de résultats n’est fournie par l’API.</span>
+          </div>
         </article>
         <article class="panneau effectifs-panel">
           <div class="panneau__entete effectifs-panel__entete">
             <div class="effectifs-panel__titre">
               <span class="panneau__eyebrow"><i></i> Démographie scolaire</span>
-              <h2>Évolution des effectifs</h2>
-              <p class="graphique-absences__description">Une progression régulière de la communauté scolaire</p>
+              <h2>Effectifs actuels</h2>
+              <p class="graphique-absences__description">Données chargées depuis les classes accessibles</p>
             </div>
-            @if (apercuDonneesFictives) {
+            @if (estAdmin()) {
+              <span class="indicateur-attente__badge">Effectifs non disponibles pour ce profil</span>
+            } @else {
               <div class="effectifs-kpi">
                 <span class="effectifs-kpi__icone" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M3 20h18M5 17l5-5 4 3 6-8"/><path d="M15 7h5v5"/></svg>
+                  <svg viewBox="0 0 24 24"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20m6-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
                 </span>
-                <span class="effectifs-kpi__texte"><strong>368</strong><small>élèves actuellement</small><em>+120 en 4 ans</em></span>
+                <span class="effectifs-kpi__texte">
+                  <strong>{{ chargement() ? '…' : erreurChargement() ? '—' : estParent() ? enfants().length : totalEleves() }}</strong>
+                  <small>{{ estParent() ? 'enfants rattachés' : 'élèves actuellement' }}</small>
+                  <em>{{ estParent() ? classesEnfants() : classes().length }} classes</em>
+                </span>
               </div>
-            } @else {
-              <span class="indicateur-attente__badge">Historique API requis</span>
             }
           </div>
-          @if (apercuDonneesFictives) {
-            <div class="effectifs-graphique" role="img" aria-label="Effectifs fictifs : 248 élèves en 2022, 276 en 2023, 309 en 2024, 337 en 2025, 368 en 2026">
-              <div class="effectifs-graphique__valeurs" aria-hidden="true"><span>400</span><span>300</span><span>200</span></div>
-              <svg class="effectifs-graphique__svg" viewBox="0 0 760 280" aria-hidden="true">
-                <defs>
-                  <linearGradient id="teinte-effectifs" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stop-color="#2f5d50" stop-opacity=".22" />
-                    <stop offset="65%" stop-color="#6d9a7d" stop-opacity=".09" />
-                    <stop offset="100%" stop-color="#fbf8f2" stop-opacity="0" />
-                  </linearGradient>
-                  <filter id="ombre-point-effectifs" x="-100%" y="-100%" width="300%" height="300%">
-                    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#2f5d50" flood-opacity=".22" />
-                  </filter>
-                </defs>
-                @for (ligne of [32, 132, 232]; track ligne) {
-                  <line x1="42" x2="746" [attr.y1]="ligne" [attr.y2]="ligne" class="effectifs-graphique__grille" />
-                }
-                <path d="M42 232 L42 184 C105 180 159 160 218 156 S333 128 394 123 S510 99 570 95 S685 65 746 64 L746 232 Z" class="effectifs-graphique__aire" />
-                <path d="M42 184 C105 180 159 160 218 156 S333 128 394 123 S510 99 570 95 S685 65 746 64" class="effectifs-graphique__ligne" />
-                @for (point of donneesEvolutionDemo; track point.annee; let index = $index) {
-                  <line [attr.x1]="42 + index * 176" [attr.x2]="42 + index * 176" [attr.y1]="232" [attr.y2]="232 - (point.effectif - 200)" class="effectifs-graphique__guide" />
-                  <circle [attr.cx]="42 + index * 176" [attr.cy]="232 - (point.effectif - 200)" r="10" class="effectifs-graphique__halo" />
-                  <circle [attr.cx]="42 + index * 176" [attr.cy]="232 - (point.effectif - 200)" r="5" class="effectifs-graphique__point" filter="url(#ombre-point-effectifs)" />
-                  <text [attr.x]="42 + index * 176" [attr.y]="212 - (point.effectif - 200)" [attr.text-anchor]="index === 4 ? 'end' : 'middle'" class="effectifs-graphique__etiquette">{{ point.effectif }}</text>
-                  <text [attr.x]="42 + index * 176" y="262" [attr.text-anchor]="index === 0 ? 'start' : index === 4 ? 'end' : 'middle'" class="effectifs-graphique__annee">{{ point.annee }}</text>
-                }
-              </svg>
-            </div>
-            <div class="effectifs-resume">
-              @for (point of donneesEvolutionDemo; track point.annee; let index = $index) {
-                <div class="effectifs-resume__annee" [class.effectifs-resume__annee--actuelle]="$last">
-                  <span class="effectifs-resume__repere">{{ index === 0 ? 'Départ' : $last ? 'Aujourd’hui' : 'Année ' + (index + 1) }}</span>
-                  <strong>{{ point.effectif }}</strong>
-                  <small>{{ point.annee }}</small>
-                </div>
-              }
-            </div>
-            <p class="effectifs-panel__note"><span aria-hidden="true">✦</span> Aperçu fictif pour illustrer l’évolution. L’historique réel nécessite une API dédiée.</p>
-          } @else {
-            <div class="graphique-etat graphique-etat--compact">
-              <strong>Historique non disponible</strong>
-              <span>Une API d’effectifs par année scolaire est nécessaire pour afficher cette courbe.</span>
-            </div>
-          }
+          <div class="graphique-etat graphique-etat--compact">
+            <strong>Historique non disponible</strong>
+            <span>L’API ne fournit pas encore les effectifs des années précédentes.</span>
+          </div>
         </article>
     </section>
 

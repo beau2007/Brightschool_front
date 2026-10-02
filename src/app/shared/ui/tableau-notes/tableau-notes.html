@@ -1,0 +1,63 @@
+<section class="tableau-notes" aria-label="Relevé des notes">
+  @if (chargement()) {
+    <div class="etat-tableau"><span class="chargeur"></span><strong>Chargement des notes…</strong></div>
+  } @else if (!data) {
+    <div class="etat-tableau"><span class="etat-tableau__icone">✎</span><strong>Aucune donnée à afficher</strong><span>Sélectionnez une classe pour consulter son relevé.</span></div>
+  } @else if (nombreEleves() === 0 || nombreMatieres() === 0) {
+    <div class="etat-tableau"><span class="etat-tableau__icone">✎</span><strong>Le relevé est encore vide</strong><span>Les élèves et matières apparaîtront ici dès qu’ils seront disponibles.</span></div>
+  } @else {
+    <header class="resume-tableau">
+      <div><span class="resume-tableau__eyebrow">{{ singleStudent ? 'Relevé individuel' : 'Relevé de classe' }}</span><h2>{{ singleStudent ? data.eleves[0].prenom + ' ' + data.eleves[0].nom : data.classeNom }}</h2></div>
+      <div class="resume-tableau__stats">
+        <span><strong>{{ nombreEleves() }}</strong> élève{{ nombreEleves() === 1 ? '' : 's' }}</span>
+        <span><strong>{{ nombreMatieres() }}</strong> matières</span>
+        <span><strong>{{ moyenneClasse() ?? '—' }}</strong> moyenne / 20</span>
+      </div>
+    </header>
+
+    <div class="tableau-defilement">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-eleve">Élève</th>
+            @for (matiere of matieres(); track matiere.id) {
+              <th class="col-matiere"><span>{{ matiere.nom }}</span><small>Coef. {{ matiere.coefficient }}</small></th>
+            }
+            <th class="col-moyenne">Moyenne</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (eleve of eleves(); track eleve.eleveId) {
+            <tr>
+              <th scope="row" class="identite-eleve">
+                <span class="avatar" [style.background]="couleurAvatar(eleve.eleveId)">{{ initiales(eleve) }}</span>
+                <span><strong>{{ eleve.prenom }} {{ eleve.nom }}</strong><small>{{ eleve.matricule ?? 'Élève' }}</small></span>
+              </th>
+              @for (matiere of matieres(); track matiere.id) {
+                <td class="cellule-note">
+                  @if (cellule(eleve.eleveId, matiere.id); as note) {
+                    <span class="note" [style.--couleur-note]="couleurNote(note.valeur, note.noteMax || 20)">{{ note.valeur }}<small>/ {{ note.noteMax || 20 }}</small></span>
+                  } @else {
+                    <span class="note note--vide">—</span>
+                  }
+                </td>
+              }
+              <td class="cellule-moyenne"><strong>{{ moyenneEleve(eleve.eleveId) ?? '—' }}</strong><small>/ 20</small></td>
+            </tr>
+          }
+        </tbody>
+        @if (!singleStudent) {
+          <tfoot>
+            <tr>
+              <th scope="row">Moyenne de la matière</th>
+              @for (matiere of matieres(); track matiere.id) {
+                <td>{{ moyenneMatiere(matiere.id, matiere.coefficient) ?? '—' }}</td>
+              }
+              <td>{{ moyenneClasse() ?? '—' }}</td>
+            </tr>
+          </tfoot>
+        }
+      </table>
+    </div>
+  }
+</section>

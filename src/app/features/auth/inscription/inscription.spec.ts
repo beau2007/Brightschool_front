@@ -15,7 +15,10 @@ describe('Inscription', () => {
     await fixture.whenStable();
   });
 
-  it('should create', () => {
+  it('should create and expose the registration form', () => {
     expect(component).toBeTruthy();
+    expect(component.form.get('nomEcole')).toBeTruthy();
+    expect(component.form.get('planId')).toBeTruthy();
+    expect(component.form.get('motDePasse')).toBeTruthy();
   });
 });

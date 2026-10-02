@@ -1,5 +1,5 @@
 export interface Classe {
-  id: number;
+  id: string;
   nom: string;
   niveau: string;
   enseignantPrincipalNomComplet: string | null;
@@ -9,7 +9,7 @@ export interface Classe {
 
 export interface CreerClasseRequest {
   nom: string;
-  niveauId: number;
-  enseignantPrincipalId: number | null;
+  niveauId: string;
+  enseignantPrincipalId: string | null;
   effectifMax: number | null;
 }

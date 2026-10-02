@@ -1,0 +1,104 @@
+<app-header />
+
+<main class="page">
+  <a [routerLink]="routeRetour()" class="retour"><span aria-hidden="true">←</span> Retour à la liste</a>
+
+  @if (chargement()) {
+    <section class="skeleton-bloc" aria-label="Chargement du dossier élève">
+      <div class="sk-line sk-hero"></div><div class="sk-line sk-stats"></div><div class="sk-line sk-content"></div>
+    </section>
+  } @else if (erreur()) {
+    <div class="etat-vide">
+      <div class="icone">⚠️</div>
+      <h2>{{ erreur() }}</h2>
+      <a [routerLink]="routeRetour()" class="btn-primaire">Retour</a>
+    </div>
+  } @else if (eleve(); as e) {
+    <div class="dossier">
+      <section class="hero">
+        <div class="hero__halo" aria-hidden="true"></div>
+        <div class="hero-avatar">
+          @if (e.photoUrl) { <img [src]="e.photoUrl" [alt]="'Portrait de ' + e.prenom + ' ' + e.nom" /> }
+          @else { <span>{{ initiales() }}</span> }
+        </div>
+        <div class="hero-infos">
+          <span class="sur-titre">Dossier élève <i></i> Année en cours</span>
+          <h1>{{ e.prenom }} {{ e.nom }}</h1>
+          <p>Le parcours scolaire et les informations essentielles de l’élève, réunis au même endroit.</p>
+          <div class="hero-meta">
+            @if (e.matricule) { <span class="tag">Matricule · {{ e.matricule }}</span> }
+            <span class="tag tag-primary">{{ e.classeNom || 'Classe non renseignée' }}</span>
+          </div>
+        </div>
+        <div class="hero-ecole"><span aria-hidden="true">⌂</span><small>Établissement</small><strong>{{ afficher(ecoleNom()) }}</strong></div>
+      </section>
+
+      <section class="stats" aria-label="Résumé du dossier">
+        <article class="stat stat--vert"><span class="stat__icone" aria-hidden="true">▤</span><span class="stat-label">Classe actuelle</span><strong class="stat-valeur">{{ e.classeNom || '—' }}</strong><small>{{ classeCourante()?.niveau || 'Niveau non renseigné' }}</small></article>
+        <article class="stat stat--ambre"><span class="stat__icone" aria-hidden="true">✦</span><span class="stat-label">Notes enregistrées</span><strong class="stat-valeur">{{ nombreEvaluations() }}</strong><small>Pour les trois trimestres</small></article>
+        <article class="stat stat--bleu"><span class="stat__icone" aria-hidden="true">◷</span><span class="stat-label">Âge</span><strong class="stat-valeur">{{ age() ?? '—' }}<small>{{ age() === null ? '' : 'ans' }}</small></strong><small>{{ formatDate(e.dateNaissance) }}</small></article>
+        <article class="stat stat--violet"><span class="stat__icone" aria-hidden="true">◎</span><span class="stat-label">Valeur moyenne</span><strong class="stat-valeur">{{ moyenneGenerale() ?? '—' }}</strong><small>Sur les évaluations chiffrées</small></article>
+      </section>
+
+      <div class="grille-dossier">
+        <section class="bloc bloc--personnel">
+          <header class="bloc__entete"><span class="bloc__icone bloc__icone--violet" aria-hidden="true">♙</span><div><span class="bloc__eyebrow">Profil</span><h2>Informations personnelles</h2></div></header>
+          <dl class="details-grid">
+            <div><dt>Nom complet</dt><dd>{{ e.prenom }} {{ e.nom }}</dd></div>
+            <div><dt>Date de naissance</dt><dd>{{ formatDate(e.dateNaissance) }}</dd></div>
+            <div><dt>Âge</dt><dd>{{ age() === null ? 'Non renseigné' : age() + ' ans' }}</dd></div>
+            <div><dt>Sexe</dt><dd>{{ e.sexe === 'M' ? 'Masculin' : e.sexe === 'F' ? 'Féminin' : 'Non renseigné' }}</dd></div>
+            <div><dt>Lieu de naissance</dt><dd>{{ afficher(e.lieuNaissance) }}</dd></div>
+            <div><dt>Adresse</dt><dd>{{ afficher(e.adresse) }}</dd></div>
+            <div class="detail-large"><dt>Informations médicales</dt><dd>{{ afficher(e.informationsMedicales) }}</dd></div>
+          </dl>
+        </section>
+
+        <section class="bloc bloc--scolarite">
+          <header class="bloc__entete"><span class="bloc__icone bloc__icone--vert" aria-hidden="true">▣</span><div><span class="bloc__eyebrow">Parcours</span><h2>Scolarité et enseignant</h2></div></header>
+          <dl class="details-grid">
+            <div><dt>Établissement</dt><dd>{{ afficher(ecoleNom()) }}</dd></div>
+            <div><dt>Classe</dt><dd>{{ e.classeNom || 'Non renseignée' }}</dd></div>
+            <div><dt>Niveau</dt><dd>{{ classeCourante()?.niveau || 'Non renseigné' }}</dd></div>
+            <div><dt>Enseignant de la classe</dt><dd>{{ classeCourante()?.enseignantPrincipalNomComplet || 'Non renseigné dans les données disponibles' }}</dd></div>
+            <div><dt>Date d’inscription</dt><dd>{{ formatDate(e.dateInscription) }}</dd></div>
+            <div><dt>Statut scolaire</dt><dd>{{ afficher(e.statut) }}</dd></div>
+          </dl>
+        </section>
+
+        <section class="bloc bloc--parents">
+          <header class="bloc__entete"><span class="bloc__icone bloc__icone--ambre" aria-hidden="true">♡</span><div><span class="bloc__eyebrow">Famille</span><h2>Parent / responsable</h2></div></header>
+          @if (e.nomParent || e.telephoneParent || e.emailParent) {
+            <dl class="details-grid details-grid--une-colonne">
+              <div><dt>Nom</dt><dd>{{ afficher(e.nomParent) }}</dd></div>
+              <div><dt>Téléphone</dt><dd>{{ afficher(e.telephoneParent) }}</dd></div>
+              <div><dt>Adresse e-mail</dt><dd>{{ afficher(e.emailParent) }}</dd></div>
+            </dl>
+          } @else {
+            <div class="indisponible"><span aria-hidden="true">ⓘ</span><p>Les coordonnées du parent ne sont pas incluses dans la réponse actuelle de l’API élève.</p></div>
+          }
+        </section>
+
+        <section class="bloc bloc--pension">
+          <header class="bloc__entete"><span class="bloc__icone bloc__icone--bleu" aria-hidden="true">¤</span><div><span class="bloc__eyebrow">Services</span><h2>Pension et frais scolaires</h2></div></header>
+          <div class="pension-etat"><span class="pension-etat__icone" aria-hidden="true">↗</span><div><strong>Suivi financier non disponible</strong><p>L’API ne fournit pas encore de pension ou de paiements liés individuellement à cet élève.</p></div></div>
+          <div class="pension-meta"><span>Statut de paiement</span><strong>Non transmis</strong></div>
+        </section>
+      </div>
+
+      <section class="bloc bloc--evaluations">
+        <header class="bloc__entete bloc__entete--ligne">
+          <div class="bloc__titre"><span class="bloc__icone bloc__icone--ambre" aria-hidden="true">✎</span><div><span class="bloc__eyebrow">Apprentissages</span><h2>Notes de {{ e.prenom }} {{ e.nom }}</h2></div></div>
+          <div class="filtre-trimestre" aria-label="Choisir un trimestre">
+            @for (t of [1, 2, 3]; track t) {
+              <button type="button" [class.actif]="trimestre() === t" (click)="changerTrimestre($any(t))">T{{ t }}</button>
+            }
+          </div>
+        </header>
+        <app-tableau-notes [data]="tableauNotes()" [loading]="false" [singleStudent]="true" />
+      </section>
+
+      <footer class="pied-dossier"><span>BrightSchool <i>·</i> Dossier élève</span><span>Les informations affichées proviennent des données disponibles pour cet élève.</span></footer>
+    </div>
+  }
+</main>

@@ -1,0 +1,43 @@
+<article class="carte-enfant" [routerLink]="['/eleves', enfant.eleveId]">
+  <div class="carte-header">
+    @if (enfant.photoUrl) {
+      <img [src]="enfant.photoUrl" [alt]="enfant.prenom" class="avatar" />
+    } @else {
+      <div class="avatar avatar-initiales" [style.background]="couleurAvatar()">
+        {{ initiales() }}
+      </div>
+    }
+    <div class="identite">
+      <h2>{{ afficher(enfant.prenom) }} {{ afficher(enfant.nom) }}</h2>
+      @if (enfant.matricule) {
+        <span class="matricule">#{{ enfant.matricule }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="infos">
+    <div class="info-ligne">
+      <span class="label">École</span>
+      <span class="valeur" [class.vide]="!enfant.ecoleNom">
+        {{ afficher(enfant.ecoleNom) }}
+      </span>
+    </div>
+    <div class="info-ligne">
+      <span class="label">Classe</span>
+      <span class="valeur badge" [class.vide]="!enfant.classeNom">
+        {{ afficher(enfant.classeNom) }}
+      </span>
+    </div>
+    @if (enfant.dateNaissance) {
+      <div class="info-ligne">
+        <span class="label">Naissance</span>
+        <span class="valeur">{{ enfant.dateNaissance | date:'dd/MM/yyyy' }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="carte-footer">
+    <span>Voir le dossier</span>
+    <span class="fleche">→</span>
+  </div>
+</article>

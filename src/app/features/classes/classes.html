@@ -1,16 +1,17 @@
 <app-header />
 
 <main class="page">
-  <div class="entete-page">
+  <section class="entete-page">
     <div>
-      <h1>Classes</h1>
-      <p class="sous-titre">{{ classes().length }} classe(s) pour l'année en cours.</p>
+      <span class="sur-titre">Organisation pédagogique</span>
+      <h1>Vos classes</h1>
+      <p class="sous-titre">{{ classes().length }} classe(s) enregistrée(s) pour l’année en cours.</p>
     </div>
 
     @if (authService.aLeRole('Directeur') && !formulaireOuvert()) {
-      <app-button (clicked)="ouvrirFormulaire()">Nouvelle classe</app-button>
+      <app-button (clicked)="ouvrirFormulaire()">+ Créer une classe</app-button>
     }
-  </div>
+  </section>
 
   @if (formulaireOuvert()) {
     <form class="formulaire-inline" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
@@ -47,30 +48,35 @@
     </form>
   }
 
-  @if (chargement()) {
-    <p class="etat">Chargement…</p>
+  @if (erreurChargement()) {
+    <div class="etat etat--erreur" role="alert">{{ erreurChargement() }}</div>
+  } @else if (chargement()) {
+    <div class="etat"><span class="chargeur"></span><span>Chargement des classes…</span></div>
   } @else if (classes().length === 0) {
-    <p class="etat">Aucune classe pour le moment.</p>
+    <div class="etat"><strong>Aucune classe pour le moment</strong><span>Créez une classe pour commencer à organiser vos élèves.</span></div>
   } @else {
-    <table class="tableau">
-      <thead>
-        <tr>
-          <th>Classe</th>
-          <th>Niveau</th>
-          <th>Enseignant</th>
-          <th>Effectif</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (classe of classes(); track classe.id) {
-          <tr>
-            <td>{{ classe.nom }}</td>
-            <td>{{ classe.niveau }}</td>
-            <td>{{ classe.enseignantPrincipalNomComplet ?? '—' }}</td>
-            <td>{{ classe.effectifActuel }}{{ classe.effectifMax ? ' / ' + classe.effectifMax : '' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <section class="grille-classes" aria-label="Classes de l’établissement">
+      @for (classe of classes(); track classe.id) {
+        <article class="carte-classe">
+          <div class="carte-classe__entete">
+            <span class="carte-classe__icone" aria-hidden="true">▤</span>
+            <span class="badge-niveau">{{ classe.niveau }}</span>
+          </div>
+          <h2>{{ classe.nom }}</h2>
+          <p class="enseignant"><span>Enseignant principal</span><strong>{{ classe.enseignantPrincipalNomComplet ?? 'Non assigné' }}</strong></p>
+          <div class="effectif">
+            <div class="effectif__entete"><span>Effectif</span><strong>{{ classe.effectifActuel }}{{ classe.effectifMax ? ' / ' + classe.effectifMax : '' }}</strong></div>
+            @if (tauxOccupation(classe) !== null) {
+              <div class="jauge" role="progressbar" [attr.aria-valuenow]="tauxOccupation(classe)" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="'Occupation de ' + classe.nom">
+                <span [style.width.%]="tauxOccupation(classe)"></span>
+              </div>
+            } @else {
+              <div class="jauge jauge--inconnue"><span></span></div>
+              <small class="capacite-inconnue">Capacité maximale non renseignée</small>
+            }
+          </div>
+        </article>
+      }
+    </section>
   }
 </main>

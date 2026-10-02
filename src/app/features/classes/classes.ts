@@ -24,11 +24,12 @@ export class Classes implements OnInit {
   readonly formulaireOuvert = signal(false);
   readonly enregistrement = signal(false);
   readonly erreur = signal<string | null>(null);
+  readonly erreurChargement = signal<string | null>(null);
 
   readonly form = inject(FormBuilder).group({
     nom: ['', Validators.required],
-    niveauId: [null as number | null, Validators.required],
-    enseignantPrincipalId: [null as number | null],
+    niveauId: ['' as string, Validators.required],
+    enseignantPrincipalId: [null as string | null],
     effectifMax: [null as number | null]
   });
 
@@ -41,13 +42,23 @@ export class Classes implements OnInit {
 
   private chargerClasses(): void {
     this.chargement.set(true);
+    this.erreurChargement.set(null);
     this.http.get<Classe[]>(`${environment.apiUrl}/classes`).subscribe({
       next: (classes) => {
         this.classes.set(classes);
         this.chargement.set(false);
       },
-      error: () => this.chargement.set(false)
+      error: () => {
+        this.classes.set([]);
+        this.erreurChargement.set('Impossible de charger les classes. Vérifiez votre session puis réessayez.');
+        this.chargement.set(false);
+      }
     });
+  }
+
+  tauxOccupation(classe: Classe): number | null {
+    if (!classe.effectifMax) return null;
+    return Math.min(100, Math.round((classe.effectifActuel / classe.effectifMax) * 100));
   }
 
   ouvrirFormulaire(): void {

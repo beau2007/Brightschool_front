@@ -5,13 +5,13 @@ export interface LoginRequest {
 
 export interface RoleScope {
   roleNom: string;
-  ecoleId: number | null;
+  ecoleId: string | null;
   ecoleNom: string | null;
-  classeId: number | null;
+  classeId: string | null;
 }
 
 export interface UtilisateurProfil {
-  id: number;
+  id: string;
   email: string;
   nom: string;
   prenom: string;

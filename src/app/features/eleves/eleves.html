@@ -1,27 +1,45 @@
 <app-header />
 
 <main class="page">
-  <div class="entete-page">
-    <div>
-      <h1>Élèves</h1>
-      <p class="sous-titre">{{ eleves().length }} élève(s) dans cette classe.</p>
+  <section class="entete-page">
+    <div class="entete-page__texte">
+      <span class="sur-titre">Vie scolaire <i></i> Année en cours</span>
+      <h1>Les élèves</h1>
+      <p class="sous-titre">
+        @if (estEnseignant()) {
+          Voici uniquement les élèves de votre classe assignée.
+        } @else {
+          Consultez les effectifs et retrouvez les informations de chaque élève.
+        }
+      </p>
     </div>
 
     @if (authService.aLeRole('Directeur') && !formulaireOuvert() && classeSelectionneeId()) {
-      <app-button (clicked)="ouvrirFormulaire()">Nouvel élève</app-button>
+      <app-button (clicked)="ouvrirFormulaire()">+ Ajouter un élève</app-button>
     }
-  </div>
+  </section>
 
-  <label class="champ champ--select">
-    <span>Classe</span>
-    <select (change)="onChangerClasse($event)">
-      @for (classe of classes(); track classe.id) {
-        <option [value]="classe.id" [selected]="classe.id === classeSelectionneeId()">
-          {{ classe.nom }}
-        </option>
+  <section class="barre-outils" aria-label="Liste des élèves">
+    <div class="barre-outils__resume">
+      <span class="barre-outils__icone" aria-hidden="true">⌕</span>
+      <div><strong>Liste des élèves</strong><small>{{ eleves().length }} résultat(s)</small></div>
+    </div>
+    @if (estEnseignant()) {
+      @if (classes()[0]; as classe) {
+        <span class="classe-assignee"><small>Ma classe</small><strong>{{ classe.nom }} · {{ classe.niveau }}</strong></span>
       }
-    </select>
-  </label>
+    } @else {
+      <label class="champ champ--select" for="classe-eleves">
+        <span>Filtrer par classe</span>
+        <select id="classe-eleves" [value]="classeSelectionneeId() ?? ''" (change)="onChangerClasse($event)" [disabled]="chargementClasses() || classes().length === 0">
+          <option value="" disabled>{{ chargementClasses() ? 'Chargement des classes…' : 'Choisir une classe' }}</option>
+          @for (classe of classes(); track classe.id) {
+            <option [value]="classe.id">{{ classe.nom }} · {{ classe.niveau }}</option>
+          }
+        </select>
+      </label>
+    }
+  </section>
 
   @if (formulaireOuvert()) {
     <form class="formulaire-inline" [formGroup]="form" (ngSubmit)="soumettre()" novalidate>
@@ -64,30 +82,29 @@
     </form>
   }
 
-  @if (chargementEleves()) {
-    <p class="etat">Chargement…</p>
+  @if (erreurClasses()) {
+    <div class="etat etat--erreur" role="alert">{{ erreurClasses() }}</div>
+  } @else if (chargementClasses() || chargementEleves()) {
+    <div class="etat"><span class="chargeur"></span><span>Chargement des élèves…</span></div>
+  } @else if (erreurEleves()) {
+    <div class="etat etat--erreur" role="alert">{{ erreurEleves() }}</div>
+  } @else if (!classeSelectionneeId() && !erreurClasses()) {
+    <div class="etat"><strong>Aucune classe disponible</strong><span>Une classe doit être créée ou associée à votre compte.</span></div>
   } @else if (eleves().length === 0) {
-    <p class="etat">Aucun élève dans cette classe.</p>
+    <div class="etat"><strong>Aucun élève dans cette classe</strong><span>Les élèves inscrits apparaîtront ici.</span></div>
   } @else {
-    <table class="tableau">
-      <thead>
-        <tr>
-          <th>Matricule</th>
-          <th>Nom</th>
-          <th>Prénom</th>
-          <th>Naissance</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (eleve of eleves(); track eleve.id) {
-          <tr>
-            <td>{{ eleve.matricule }}</td>
-            <td>{{ eleve.nom }}</td>
-            <td>{{ eleve.prenom }}</td>
-            <td>{{ eleve.dateNaissance | date: 'dd/MM/yyyy' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <section class="liste-eleves" aria-label="Liste des élèves de la classe">
+      @for (eleve of eleves(); track eleve.id) {
+        <article class="carte-eleve">
+          <span class="avatar-eleve" aria-hidden="true">{{ eleve.prenom.charAt(0) }}{{ eleve.nom.charAt(0) }}</span>
+          <div class="carte-eleve__identite"><strong>{{ eleve.prenom }} {{ eleve.nom }}</strong><small>{{ eleve.matricule }}</small></div>
+          <div class="carte-eleve__naissance"><span>Date de naissance</span><strong>{{ eleve.dateNaissance | date: 'dd/MM/yyyy' }}</strong></div>
+          <span class="statut-eleve"><i></i> Inscrit</span>
+          <a class="bouton-details" [routerLink]="['/eleves', eleve.id]" [attr.aria-label]="'Voir le dossier de ' + eleve.prenom + ' ' + eleve.nom">
+            Voir détails <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      }
+    </section>
   }
 </main>

@@ -25,7 +25,6 @@ interface Indicateur {
   icone: string;
   tendance: string;
   points: number[];
-  demo?: boolean;
 }
 
 interface PresenceDashboard {
@@ -38,7 +37,7 @@ interface PresenceDashboard {
 }
 
 interface PresenceClasseJour {
-  classeId: number;
+  classeId: string;
   classeNom: string;
   date: string;
   presences: PresenceDashboard[];
@@ -63,17 +62,6 @@ interface CoordonneeGraphique extends PointGraphique {
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
-  readonly apercuDonneesFictives = !environment.production;
-  readonly donneesEvolutionDemo = [
-    { annee: '2022', effectif: 248 },
-    { annee: '2023', effectif: 276 },
-    { annee: '2024', effectif: 309 },
-    { annee: '2025', effectif: 337 },
-    { annee: '2026', effectif: 368 }
-  ];
-  readonly tauxReussiteDemo = 87;
-  readonly evolutionEffectifsDemo = '120 élèves de plus sur 4 ans';
-  readonly variationReussiteDemo = '+4,2 pts sur la dernière année';
   readonly classes = signal<Classe[]>([]);
   readonly enfants = signal<EnfantDuParent[]>([]);
   readonly abonnementsEnAttente = signal<AbonnementEnAttente[]>([]);
@@ -127,16 +115,6 @@ export class Dashboard implements OnInit {
 
   readonly indicateurs = computed<Indicateur[]>(() => {
     if (!this.authService.estConnecte()) {
-      if (this.apercuDonneesFictives) {
-        return [
-          { label: 'Élèves inscrits', valeur: '368', detail: 'Effectif de l’établissement', icone: 'eleves', tendance: '+ 9,2% cette année', points: [24, 32, 28, 42, 39, 58, 55, 72, 68, 90], demo: true },
-          { label: 'Classes', valeur: '18', detail: 'Réparties par niveau', icone: 'classes', tendance: '+ 2 cette année', points: [30, 30, 42, 42, 55, 55, 70, 70, 84, 84], demo: true },
-          { label: 'Présence moyenne', valeur: '94,2%', detail: 'Sur la période sélectionnée', icone: 'presence', tendance: '+ 2,4 pts', points: [42, 48, 46, 58, 55, 62, 68, 65, 80, 88], demo: true },
-          { label: 'Absences période', valeur: String(this.totalAbsences()), detail: 'Toutes classes confondues', icone: 'absence', tendance: '− 8,1%', points: [76, 62, 68, 55, 59, 42, 48, 34, 38, 24], demo: true },
-          { label: 'Taux de réussite', valeur: `${this.tauxReussiteDemo}%`, detail: 'Résultats annuels', icone: 'suivi', tendance: this.variationReussiteDemo, points: [38, 48, 45, 56, 62, 58, 70, 75, 78, 87], demo: true },
-          { label: 'Retards période', valeur: String(this.totalRetards()), detail: 'Toutes classes confondues', icone: 'retard', tendance: '− 3,2%', points: [70, 58, 66, 50, 55, 42, 47, 35, 38, 30], demo: true }
-        ];
-      }
       return [
         { label: 'Élèves inscrits', valeur: '—', detail: 'Connectez-vous pour afficher vos données', icone: 'eleves', tendance: '—', points: [] },
         { label: 'Classes', valeur: '—', detail: 'Indicateur selon votre profil', icone: 'classes', tendance: '—', points: [] },
@@ -148,60 +126,45 @@ export class Dashboard implements OnInit {
     }
     if (this.estAdmin()) {
       return [
-        {
-          label: 'À traiter',
-          valeur: String(this.abonnementsEnAttente().length),
-          detail: 'Demandes de paiement en attente',
-          icone: 'suivi', tendance: 'Action requise', points: [38, 42, 35, 52, 49, 61, 57, 68, 74, 82]
-        },
-        {
-          label: 'Établissements',
-          valeur: String(this.etablissementsAbonnes()),
-          detail: 'Établissements concernés',
-          icone: 'ecoles', tendance: 'Actifs', points: [24, 32, 28, 42, 39, 58, 55, 72, 68, 90]
-        },
-        {
-          label: 'Offres concernées',
-          valeur: String(this.plansEnAttente()),
-          detail: 'Plans représentés dans les demandes',
-          icone: 'plans', tendance: 'Catalogue', points: [32, 34, 38, 42, 50, 48, 62, 70, 74, 82]
-        },
-        { label: 'Demandes validées', valeur: '—', detail: 'Période actuelle', icone: 'presence', tendance: 'Statistique API requise', points: [24, 28, 35, 42, 44, 56, 63, 66, 78, 84] },
-        { label: 'Revenus mensuels', valeur: '—', detail: 'Tous établissements', icone: 'suivi', tendance: 'Statistique API requise', points: [30, 35, 33, 48, 54, 50, 68, 72, 82, 90] },
-        { label: 'Abonnements actifs', valeur: '—', detail: 'Tous plans confondus', icone: 'retard', tendance: 'Statistique API requise', points: [38, 42, 48, 46, 58, 65, 62, 74, 80, 88] }
+        { label: 'À traiter', valeur: String(this.abonnementsEnAttente().length), detail: 'Demandes de paiement en attente', icone: 'suivi', tendance: 'Demandes en attente', points: [] },
+        { label: 'Établissements', valeur: String(this.etablissementsAbonnes()), detail: 'Établissements concernés', icone: 'ecoles', tendance: 'Données disponibles', points: [] },
+        { label: 'Offres concernées', valeur: String(this.plansEnAttente()), detail: 'Plans dans les demandes en attente', icone: 'plans', tendance: 'Données disponibles', points: [] },
+        { label: 'Demandes validées', valeur: '—', detail: 'Statistique non disponible', icone: 'presence', tendance: 'Non disponible', points: [] },
+        { label: 'Revenus mensuels', valeur: '—', detail: 'Statistique non disponible', icone: 'suivi', tendance: 'Non disponible', points: [] },
+        { label: 'Abonnements actifs', valeur: '—', detail: 'Statistique non disponible', icone: 'retard', tendance: 'Non disponible', points: [] }
       ];
     }
     if (this.estParent()) {
       return [
-        { label: 'Mes enfants', valeur: String(this.enfants().length), detail: 'Enfants rattachés au compte', icone: 'eleves', tendance: 'Suivi actif', points: [32, 32, 44, 44, 58, 58, 74, 74, 88, 88] },
-        { label: 'Classes', valeur: String(this.classesEnfants()), detail: 'Classes actuellement suivies', icone: 'classes', tendance: 'Cette année', points: [28, 34, 34, 42, 46, 54, 60, 68, 74, 82] },
+        { label: 'Mes enfants', valeur: String(this.enfants().length), detail: 'Enfants rattachés au compte', icone: 'eleves', tendance: 'Données disponibles', points: [] },
+        { label: 'Classes', valeur: String(this.classesEnfants()), detail: 'Classes actuellement suivies', icone: 'classes', tendance: 'Données disponibles', points: [] },
         {
           label: 'Établissements',
           valeur: String(this.etablissementsDistincts()),
           detail: 'Établissements concernés',
-          icone: 'ecoles', tendance: 'Suivi actif', points: [25, 35, 30, 46, 42, 58, 63, 70, 76, 88]
+          icone: 'ecoles', tendance: 'Données disponibles', points: []
         },
-        { label: 'Présences', valeur: this.apercuDonneesFictives ? '94,2%' : '—', detail: 'Présence moyenne des enfants', icone: 'presence', tendance: this.apercuDonneesFictives ? '+ 2,4 pts' : 'Statistique API requise', points: [42, 48, 46, 58, 55, 62, 68, 65, 80, 88], demo: this.apercuDonneesFictives },
-        { label: 'Absences', valeur: this.apercuDonneesFictives ? '3' : '—', detail: 'Pour la période sélectionnée', icone: 'absence', tendance: this.apercuDonneesFictives ? 'À consulter' : 'Statistique API requise', points: [80, 68, 72, 58, 52, 46, 40, 36, 30, 24], demo: this.apercuDonneesFictives },
-        { label: 'Réussite scolaire', valeur: this.apercuDonneesFictives ? `${this.tauxReussiteDemo}%` : '—', detail: 'Moyenne des enfants', icone: 'suivi', tendance: this.apercuDonneesFictives ? this.variationReussiteDemo : 'Statistique API requise', points: [38, 48, 45, 56, 62, 58, 70, 75, 78, 87], demo: this.apercuDonneesFictives }
+        { label: 'Présences', valeur: '—', detail: 'Statistique non disponible', icone: 'presence', tendance: 'Non disponible', points: [] },
+        { label: 'Absences', valeur: '—', detail: 'Statistique non disponible', icone: 'absence', tendance: 'Non disponible', points: [] },
+        { label: 'Réussite scolaire', valeur: '—', detail: 'Statistique non disponible', icone: 'suivi', tendance: 'Non disponible', points: [] }
       ];
     }
 
     return [
-      { label: 'Élèves inscrits', valeur: String(this.totalEleves() || (this.apercuDonneesFictives ? 368 : 0)), detail: 'Effectif des classes accessibles', icone: 'eleves', tendance: this.apercuDonneesFictives ? '+ 9,2% cette année' : 'Effectif actuel', points: this.apercuDonneesFictives ? [24, 32, 28, 42, 39, 58, 55, 72, 68, 90] : [], demo: this.apercuDonneesFictives },
-      { label: 'Classes', valeur: String(this.classes().length || (this.apercuDonneesFictives ? 18 : 0)), detail: 'Classes accessibles', icone: 'classes', tendance: this.apercuDonneesFictives ? '+ 2 cette année' : 'Effectif actuel', points: [30, 30, 42, 42, 55, 55, 70, 70, 84, 84], demo: this.apercuDonneesFictives && !this.classes().length },
+      { label: 'Élèves inscrits', valeur: String(this.totalEleves()), detail: 'Effectif des classes accessibles', icone: 'eleves', tendance: 'Effectif actuel', points: [] },
+      { label: 'Classes', valeur: String(this.classes().length), detail: 'Classes accessibles', icone: 'classes', tendance: 'Effectif actuel', points: [] },
       {
         label: 'Occupation',
-        valeur: this.tauxOccupation() === null ? this.apercuDonneesFictives ? '85%' : '—' : `${this.tauxOccupation()}%`,
+        valeur: this.tauxOccupation() === null ? '—' : `${this.tauxOccupation()}%`,
         detail:
           this.tauxOccupation() === null
-            ? this.apercuDonneesFictives ? 'Taux de remplissage des classes' : 'Capacité non renseignée'
+            ? 'Capacité non renseignée'
             : `${this.totalEleves()} élèves sur ${this.capaciteTotale()} places`,
-        icone: 'suivi', tendance: this.apercuDonneesFictives ? '+ 5,8%' : 'Capacité utilisée', points: this.apercuDonneesFictives ? [42, 48, 46, 58, 55, 62, 68, 65, 80, 85] : [], demo: this.apercuDonneesFictives
+        icone: 'suivi', tendance: 'Capacité utilisée', points: []
       },
-      { label: 'Absences période', valeur: String(this.totalAbsences()), detail: 'Toutes classes confondues', icone: 'absence', tendance: this.apercuDonneesFictives ? '− 8,1%' : 'Sur la période', points: [76, 62, 68, 55, 59, 42, 48, 34, 38, 24], demo: this.absencesEnDemo() },
-      { label: 'Taux de réussite', valeur: this.apercuDonneesFictives ? `${this.tauxReussiteDemo}%` : '—', detail: 'Résultats annuels', icone: 'suivi', tendance: this.apercuDonneesFictives ? this.variationReussiteDemo : 'Statistique API requise', points: [38, 48, 45, 56, 62, 58, 70, 75, 78, 87], demo: this.apercuDonneesFictives },
-      { label: 'Retards période', valeur: String(this.totalRetards()), detail: 'Toutes classes confondues', icone: 'retard', tendance: this.apercuDonneesFictives ? '− 3,2%' : 'Sur la période', points: [70, 58, 66, 50, 55, 42, 47, 35, 38, 30], demo: this.absencesEnDemo() }
+      { label: 'Absences période', valeur: this.aDesDonneesAbsences() ? String(this.totalAbsences()) : '—', detail: 'Toutes classes confondues', icone: 'absence', tendance: 'Sur la période', points: [] },
+      { label: 'Taux de réussite', valeur: '—', detail: 'Statistique non disponible', icone: 'suivi', tendance: 'Non disponible', points: [] },
+      { label: 'Retards période', valeur: this.aDesDonneesAbsences() ? String(this.totalRetards()) : '—', detail: 'Toutes classes confondues', icone: 'retard', tendance: 'Sur la période', points: [] }
     ];
   });
 
@@ -248,15 +211,7 @@ export class Dashboard implements OnInit {
             : jour.presences.filter((presence) => this.estAbsence(presence.statut)).length
         };
       });
-      if (reels.some((point) => point.value !== null) || !this.apercuDonneesFictives) return reels;
-      return [
-        { label: 'Maternelle 1', value: 2 },
-        { label: 'CP', value: 4 },
-        { label: 'CE1', value: 3 },
-        { label: 'CE2', value: 1 },
-        { label: 'CM1', value: 5 },
-        { label: 'CM2', value: 2 }
-      ];
+      return reels;
     }
 
     const jours = this.joursDuMois(this.moisAbsences());
@@ -272,15 +227,9 @@ export class Dashboard implements OnInit {
           : enregistrements.filter((presence) => this.estAbsence(presence.statut)).length
       };
     });
-    if (reels.some((point) => point.value !== null) || !this.apercuDonneesFictives) return reels;
-
-    const exemples = [2, 1, 0, 3, 2, 4, 1, 0, 2, 5, 3, 2, 1, 0, 4, 2, 3, 1, 2, 0, 3, 4, 1, 2, 0, 3, 2, 1, 4, 2, 3];
-    return reels.map((point, index) => ({ ...point, value: exemples[index % exemples.length] }));
+    return reels;
   });
   readonly aDesDonneesAbsences = computed(() => this.pointsAbsences().some((point) => point.value !== null));
-  readonly absencesEnDemo = computed(() =>
-    this.apercuDonneesFictives && !this.presencesParClasseEtJour().some((jour) => jour.presences.length > 0)
-  );
 
   readonly coordonneesAbsences = computed<CoordonneeGraphique[]>(() => {
     const points = this.pointsAbsences();
@@ -313,16 +262,12 @@ export class Dashboard implements OnInit {
     Math.max(0, ...this.pointsAbsences().map((point) => point.value ?? 0))
   );
   readonly totalAbsences = computed(() =>
-    this.absencesEnDemo()
-      ? this.pointsAbsences().reduce((total, point) => total + (point.value ?? 0), 0)
-      : this.presencesParClasseEtJour()
+    this.presencesParClasseEtJour()
       .flatMap((jour) => jour.presences)
       .filter((presence) => this.estAbsence(presence.statut)).length
   );
   readonly totalRetards = computed(() =>
-    this.absencesEnDemo()
-      ? 8
-      : this.presencesParClasseEtJour()
+    this.presencesParClasseEtJour()
       .flatMap((jour) => jour.presences)
       .filter((presence) => this.estRetard(presence.statut)).length
   );
@@ -330,9 +275,7 @@ export class Dashboard implements OnInit {
     this.presencesParClasseEtJour().reduce((total, jour) => total + jour.presences.length, 0)
   );
   readonly journeesRenseignees = computed(() =>
-    this.absencesEnDemo()
-      ? this.periodeAbsences() === 'mois' ? this.pointsAbsences().length : 1
-      : new Set(this.presencesParClasseEtJour().filter((jour) => !jour.erreur && jour.presences.length > 0).map((jour) => jour.date)).size
+    new Set(this.presencesParClasseEtJour().filter((jour) => !jour.erreur && jour.presences.length > 0).map((jour) => jour.date)).size
   );
 
   ngOnInit(): void {

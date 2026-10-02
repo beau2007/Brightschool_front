@@ -1,0 +1,87 @@
+<app-header />
+
+<main class="page">
+  <!-- EN-TÊTE -->
+  <header class="page-header">
+    <div>
+      <h1>Notes</h1>
+      <p class="sous-titre">
+        @if (estDirectrice()) {
+          Consulte les notes par classe et par trimestre.
+        } @else {
+          Notes de ta classe pour le trimestre en cours.
+        }
+      </p>
+    </div>
+  </header>
+
+  <!-- FILTRE (Directrice uniquement) -->
+  @if (estDirectrice()) {
+    <section class="filtres">
+      <div class="filtre">
+        <label for="classe">Classe</label>
+        <select
+          id="classe"
+          [ngModel]="classeSelectionnee()"
+          (ngModelChange)="onClasseChange($event)"
+          [disabled]="chargementClasses()">
+          @if (chargementClasses()) {
+            <option>Chargement…</option>
+          } @else {
+            @for (c of classes(); track c.id) {
+              <option [value]="c.id">{{ c.nom }} — {{ c.niveau }}</option>
+            }
+          }
+        </select>
+      </div>
+
+      <div class="filtre">
+        <label for="trimestre">Trimestre</label>
+        <div class="segmented">
+          @for (t of [1, 2, 3]; track t) {
+            <button
+              type="button"
+              [class.actif]="trimestre() === t"
+              (click)="onTrimestreChange($any(t))">
+              T{{ t }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ENSEIGNANT : contexte simple -->
+  @if (!estDirectrice() && classeCourante()) {
+    <section class="contexte-classe">
+      <span class="tag-classe">{{ classeCourante()!.nom }}</span>
+      <div class="segmented">
+        @for (t of [1, 2, 3]; track t) {
+          <button
+            type="button"
+            [class.actif]="trimestre() === t"
+            (click)="onTrimestreChange($any(t))">
+            T{{ t }}
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  @if (erreur()) {
+    <div class="etat-vide">
+      <div class="icone">⚠️</div>
+      <h2>Oups…</h2>
+      <p>{{ erreur() }}</p>
+      <button class="btn-primaire" (click)="reessayer()">Réessayer</button>
+    </div>
+  } @else if (chargementClasses() || chargement()) {
+    <div class="etat-vide"><div class="chargeur"></div><h2>Chargement des notes…</h2></div>
+  } @else if (classeSelectionnee()) {
+    <app-tableau-notes
+      [data]="tableau()"
+      [loading]="chargement()" />
+  } @else if (classes().length === 0) {
+    <div class="etat-vide"><div class="icone">▤</div><h2>Aucune classe disponible</h2><p>Aucune classe n’est associée à votre compte pour le moment.</p></div>
+  }
+</main>

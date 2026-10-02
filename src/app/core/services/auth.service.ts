@@ -19,6 +19,12 @@ const CLE_PROFIL = 'bs_profil';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  userRole(): "Directeur" | "Enseignant" | "Parent" | "AdminPlateforme" {
+    if (this.aLeRole('AdminPlateforme')) return 'AdminPlateforme';
+    if (this.aLeRole('Directeur')) return 'Directeur';
+    if (this.aLeRole('Parent')) return 'Parent';
+    return 'Enseignant';
+  }
   // Signal privé, exposé en lecture seule — le reste de l'appli ne peut pas
   // muter l'état d'auth directement, seulement via login()/logout().
   private readonly _profil = signal<UtilisateurProfil | null>(this.chargerProfilStocke());

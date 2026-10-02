@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 // Garde temporairement désactivée pendant le développement :
-// import { authGuard } from './core/guards/auth.guard';
-// import { roleGuard } from './core/guards/role.guard';
+ import { authGuard } from './core/guards/auth.guard';
+ import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -14,6 +14,10 @@ export const routes: Routes = [
   },
   {
     path: 'inscription',
+    loadComponent: () => import('./features/auth/inscription/inscription').then((m) => m.Inscription)
+  },
+  {
+    path: 'inscrire-ecole',
     loadComponent: () => import('./features/auth/inscription/inscription').then((m) => m.Inscription)
   },
   {
@@ -31,27 +35,40 @@ export const routes: Routes = [
 
   {
     path: 'dashboard',
-    // canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
+     canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
     loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard)
   },
   {
     path: 'classes',
-    // canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
+     canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
     loadComponent: () => import('./features/classes/classes').then((m) => m.Classes)
   },
   {
     path: 'eleves',
-    // canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
+     canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
     loadComponent: () => import('./features/eleves/eleves').then((m) => m.Eleves)
   },
   {
+    path: 'eleves/:id',
+     canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant', 'Parent'])],
+    loadComponent: () =>
+      import('./features/eleves/detail-eleve/detail-eleve').then((m) => m.DetailEleve),
+    title: 'Détail élève'
+  },
+  {
     path: 'mes-enfants',
-    // canActivate: [authGuard, roleGuard(['Parent'])],
+     canActivate: [authGuard, roleGuard(['Parent'])],
     loadComponent: () => import('./features/mes-enfants/mes-enfants').then((m) => m.MesEnfants)
   },
   {
+    path: 'notes',
+     canActivate: [authGuard, roleGuard(['Directeur', 'Enseignant'])],
+    loadComponent: () => import('./features/notes/notes').then((m) => m.Notes),
+    title: 'Notes'
+  },
+  {
     path: 'admin/abonnements',
-    // canActivate: [authGuard, roleGuard(['AdminPlateforme'])],
+     canActivate: [authGuard, roleGuard(['AdminPlateforme'])],
     loadComponent: () =>
       import('./features/admin/abonnements/admin-abonnements').then((m) => m.AdminAbonnements)
   },

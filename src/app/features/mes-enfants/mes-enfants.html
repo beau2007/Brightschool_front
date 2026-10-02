@@ -1,21 +1,99 @@
 <app-header />
 
 <main class="page">
-  <h1>Mes enfants</h1>
-  <p class="sous-titre">Tous tes enfants, même inscrits dans des écoles différentes.</p>
+  <header class="page-header">
+    <div>
+      <h1>Mes enfants</h1>
+      <p class="sous-titre">
+        @if (nombreEnfants() > 0) {
+          {{ nombreEnfants() }} enfant{{ nombreEnfants() > 1 ? 's' : '' }} rattaché{{ nombreEnfants() > 1 ? 's' : '' }} à ton compte
+        } @else {
+          Tous tes enfants, même inscrits dans des écoles différentes.
+        }
+      </p>
+    </div>
+  </header>
 
+  <!-- ÉTAT : CHARGEMENT (Skeleton) -->
   @if (chargement()) {
-    <p class="etat">Chargement…</p>
-  } @else if (enfants().length === 0) {
-    <p class="etat">Aucun enfant rattaché à ton compte pour l'instant.</p>
-  } @else {
+    <div class="grille">
+      @for (s of skeletons; track s) {
+        <div class="carte-enfant skeleton">
+          <div class="sk-avatar"></div>
+          <div class="sk-line sk-title"></div>
+          <div class="sk-line sk-sub"></div>
+          <div class="sk-line sk-sub"></div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ÉTAT : ERREUR -->
+  @else if (erreur()) {
+    <div class="etat-vide">
+      <div class="icone">⚠️</div>
+      <h2>Oups…</h2>
+      <p>{{ erreur() }}</p>
+      <button class="btn-primaire" (click)="chargerEnfants()">Réessayer</button>
+    </div>
+  }
+
+  <!-- ÉTAT : VIDE -->
+  @else if (nombreEnfants() === 0) {
+    <div class="etat-vide">
+      <div class="icone">👨‍👩‍👧</div>
+      <h2>Aucun enfant rattaché</h2>
+      <p>Contacte l'administration de l'école pour rattacher un enfant à ton compte.</p>
+    </div>
+  }
+
+  <!-- ÉTAT : LISTE -->
+  @else {
     <div class="grille">
       @for (enfant of enfants(); track enfant.eleveId) {
-        <div class="carte-enfant">
-          <h2>{{ enfant.prenom }} {{ enfant.nom }}</h2>
-          <p class="ecole">{{ enfant.ecoleNom }}</p>
-          <p class="classe">{{ enfant.classeNom }}</p>
-        </div>
+        <article class="carte-enfant" [routerLink]="['/eleves', enfant.eleveId]">
+          <div class="carte-header">
+            @if (enfant.photoUrl) {
+              <img [src]="enfant.photoUrl" [alt]="enfant.prenom" class="avatar" />
+            } @else {
+              <div class="avatar avatar-initiales" [style.background]="couleurAvatar(enfant.eleveId)">
+                {{ initiales(enfant) }}
+              </div>
+            }
+            <div class="identite">
+              <h2>{{ afficher(enfant.prenom) }} {{ afficher(enfant.nom) }}</h2>
+              @if (enfant.matricule) {
+                <span class="matricule">#{{ enfant.matricule }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="infos">
+            <div class="info-ligne">
+              <span class="label">École</span>
+              <span class="valeur" [class.vide]="!enfant.ecoleNom">
+                {{ afficher(enfant.ecoleNom) }}
+              </span>
+            </div>
+            <div class="info-ligne">
+              <span class="label">Classe</span>
+              <span class="valeur badge" [class.vide]="!enfant.classeNom">
+                {{ afficher(enfant.classeNom) }}
+              </span>
+            </div>
+            @if (enfant.dateNaissance) {
+              <div class="info-ligne">
+                <span class="label">Naissance</span>
+                <span class="valeur">{{ enfant.dateNaissance | date:'dd/MM/yyyy' }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="carte-footer">
+            <span>Voir le dossier</span>
+            <span class="fleche">→</span>
+          </div>
+        </article>
       }
     </div>
   }
